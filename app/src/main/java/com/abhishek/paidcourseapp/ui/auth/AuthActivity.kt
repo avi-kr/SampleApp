@@ -7,6 +7,6 @@ import com.abhishek.paidcourseapp.R.layout
 class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layout.activity_main)
+        setContentView(layout.activity_auth)
     }
 }
