@@ -5,6 +5,6 @@ package com.abhishek.paidcourseapp.api.auth
  * (c)2020 VMock. All rights reserved.
  */
 
-interface OpenApiAuthServer {
+public interface OpenApiAuthService {
 
 }

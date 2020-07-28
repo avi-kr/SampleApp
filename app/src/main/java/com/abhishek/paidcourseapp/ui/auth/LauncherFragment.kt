@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.abhishek.paidcourseapp.R
 import kotlinx.android.synthetic.main.fragment_launcher.focusable_view
@@ -12,7 +11,7 @@ import kotlinx.android.synthetic.main.fragment_launcher.forgot_password
 import kotlinx.android.synthetic.main.fragment_launcher.login
 import kotlinx.android.synthetic.main.fragment_launcher.register
 
-class LauncherFragment : Fragment() {
+class LauncherFragment : BaseAuthFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
