@@ -2,7 +2,7 @@ package com.abhishek.paidcourseapp.ui.auth
 
 import androidx.lifecycle.LiveData
 import com.abhishek.paidcourseapp.models.AuthToken
-import com.abhishek.paidcourseapp.repository.AuthRepository
+import com.abhishek.paidcourseapp.repository.auth.AuthRepository
 import com.abhishek.paidcourseapp.ui.BaseViewModel
 import com.abhishek.paidcourseapp.ui.DataState
 import com.abhishek.paidcourseapp.ui.auth.state.AuthStateEvent
@@ -58,12 +58,20 @@ constructor(
     }
 
     override fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
-        when(stateEvent) {
-            is LoginAttemptEvent  -> {
-                return AbsentLiveData.create()
+        when (stateEvent) {
+            is LoginAttemptEvent -> {
+                return authRepository.attemptLogin(
+                    stateEvent.email,
+                    stateEvent.password
+                )
             }
             is RegisterAttemptEvent -> {
-                return AbsentLiveData.create()
+                return authRepository.attemptRegistration(
+                    stateEvent.email,
+                    stateEvent.username,
+                    stateEvent.password,
+                    stateEvent.confirm_password
+                )
             }
             is checkPreviousAuthEvent -> {
                 return AbsentLiveData.create()

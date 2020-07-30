@@ -1,7 +1,5 @@
 package com.abhishek.paidcourseapp.ui
 
-import com.abhishek.paidcourseapp.ui.Event.Companion
-
 /**
  * Created by Abhishek Kumar on 28/07/20.
  * (c)2020 VMock. All rights reserved.
@@ -39,16 +37,15 @@ data class DataState<T>(
         }
 
         fun <T> data(
-            data: T? =  null,
+            data: T? = null,
             response: Response? = null
         ): DataState<T> {
             return DataState(
-                data  = Data(
+                data = Data(
                     Event.dataEvent(data),
                     Event.responseEvent(response)
                 )
             )
         }
-
     }
 }

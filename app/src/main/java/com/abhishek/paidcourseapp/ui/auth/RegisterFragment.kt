@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.abhishek.paidcourseapp.R
+import com.abhishek.paidcourseapp.ui.auth.state.AuthStateEvent.RegisterAttemptEvent
 import com.abhishek.paidcourseapp.ui.auth.state.RegistrationFields
 import kotlinx.android.synthetic.main.fragment_register.input_email
 import kotlinx.android.synthetic.main.fragment_register.input_password
 import kotlinx.android.synthetic.main.fragment_register.input_password_confirm
 import kotlinx.android.synthetic.main.fragment_register.input_username
+import kotlinx.android.synthetic.main.fragment_register.register_button
 
 class RegisterFragment : BaseAuthFragment() {
 
@@ -24,6 +26,10 @@ class RegisterFragment : BaseAuthFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        register_button.setOnClickListener {
+            register()
+        }
+
         subscribeObservers()
     }
 
@@ -36,6 +42,17 @@ class RegisterFragment : BaseAuthFragment() {
                 registrationFields.registration_confirm_password?.let { input_password_confirm.setText(it) }
             }
         })
+    }
+
+    fun register() {
+        viewModel.setStateEvent(
+            RegisterAttemptEvent(
+                input_email.text.toString(),
+                input_username.text.toString(),
+                input_password.text.toString(),
+                input_password_confirm.text.toString()
+            )
+        )
     }
 
     override fun onDestroyView() {

@@ -3,7 +3,7 @@ package com.abhishek.paidcourseapp.di.auth
 import com.abhishek.paidcourseapp.api.auth.OpenApiAuthService
 import com.abhishek.paidcourseapp.persistence.AccountPropertiesDao
 import com.abhishek.paidcourseapp.persistence.AuthTokenDao
-import com.abhishek.paidcourseapp.repository.AuthRepository
+import com.abhishek.paidcourseapp.repository.auth.AuthRepository
 import com.abhishek.paidcourseapp.session.SessionManager
 import dagger.Module
 import dagger.Provides
