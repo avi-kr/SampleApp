@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PaidCourseApp</string>
+    <string name="app_name">SampleApp</string>
 
     <!-- Intent extras -->
     <string name="auth_token">auth_token</string>
