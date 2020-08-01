@@ -26,6 +26,28 @@ constructor(
     val authRepository: AuthRepository
 ) : BaseViewModel<AuthStateEvent, AuthViewState>() {
 
+    override fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
+        when (stateEvent) {
+            is LoginAttemptEvent -> {
+                return authRepository.attemptLogin(
+                    stateEvent.email,
+                    stateEvent.password
+                )
+            }
+            is RegisterAttemptEvent -> {
+                return authRepository.attemptRegistration(
+                    stateEvent.email,
+                    stateEvent.username,
+                    stateEvent.password,
+                    stateEvent.confirm_password
+                )
+            }
+            is checkPreviousAuthEvent -> {
+                return AbsentLiveData.create()
+            }
+        }
+    }
+
     override fun initNewViewState(): AuthViewState {
         return AuthViewState()
     }
@@ -57,25 +79,13 @@ constructor(
         _viewState.value = update
     }
 
-    override fun handleStateEvent(stateEvent: AuthStateEvent): LiveData<DataState<AuthViewState>> {
-        when (stateEvent) {
-            is LoginAttemptEvent -> {
-                return authRepository.attemptLogin(
-                    stateEvent.email,
-                    stateEvent.password
-                )
-            }
-            is RegisterAttemptEvent -> {
-                return authRepository.attemptRegistration(
-                    stateEvent.email,
-                    stateEvent.username,
-                    stateEvent.password,
-                    stateEvent.confirm_password
-                )
-            }
-            is checkPreviousAuthEvent -> {
-                return AbsentLiveData.create()
-            }
-        }
+    fun cancelActiveJobs() {
+        authRepository.cancelActiveJobs()
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        cancelActiveJobs()
+    }
+
 }

@@ -5,6 +5,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.findNavController
+import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.R.layout
 import com.abhishek.sampleapp.ui.BaseActivity
 import com.abhishek.sampleapp.ui.ResponseType.Dialog
@@ -14,7 +18,7 @@ import com.abhishek.sampleapp.ui.main.MainActivity
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
 import javax.inject.Inject
 
-class AuthActivity : BaseActivity() {
+class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener {
 
     @Inject
     lateinit var providerFactory: ViewModelProviderFactory
@@ -26,6 +30,7 @@ class AuthActivity : BaseActivity() {
         setContentView(layout.activity_auth)
 
         viewModel = ViewModelProvider(this, providerFactory).get(AuthViewModel::class.java)
+        findNavController(R.id.auth_nav_host_fragment).addOnDestinationChangedListener(this)
 
         subscribeObservers()
     }
@@ -52,7 +57,7 @@ class AuthActivity : BaseActivity() {
                             }
                             is None -> {
                                 // print to log
-                                Log.e(TAG, "AuthActivity: Response: ${it.message}, ${it.responseType}" )
+                                Log.e(TAG, "AuthActivity: Response: ${it.message}, ${it.responseType}")
                             }
                         }
                     }
@@ -82,5 +87,9 @@ class AuthActivity : BaseActivity() {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
+        viewModel.cancelActiveJobs()
     }
 }
