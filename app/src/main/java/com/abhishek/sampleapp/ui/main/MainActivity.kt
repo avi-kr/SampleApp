@@ -36,4 +36,9 @@ class MainActivity : BaseActivity() {
         startActivity(intent)
         finish()
     }
+
+    override fun displayProgressBar(bool: Boolean) {
+        TODO("Not yet implemented")
+    }
+
 }
