@@ -15,6 +15,7 @@ import com.abhishek.sampleapp.ui.BaseActivity
 import com.abhishek.sampleapp.ui.ResponseType.Dialog
 import com.abhishek.sampleapp.ui.ResponseType.None
 import com.abhishek.sampleapp.ui.ResponseType.Toast
+import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent
 import com.abhishek.sampleapp.ui.main.MainActivity
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
 import kotlinx.android.synthetic.main.activity_auth.progress_bar
@@ -35,6 +36,7 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         findNavController(R.id.auth_nav_host_fragment).addOnDestinationChangedListener(this)
 
         subscribeObservers()
+        checkPreviousAuthUser()
     }
 
     private fun subscribeObservers() {
@@ -67,6 +69,10 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
                 }
             }
         })
+    }
+
+    fun checkPreviousAuthUser()  {
+        viewModel.setStateEvent(AuthStateEvent.checkPreviousAuthEvent())
     }
 
     fun navMainActivity() {

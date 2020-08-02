@@ -1,5 +1,6 @@
 package com.abhishek.sampleapp.di.auth
 
+import android.content.SharedPreferences
 import com.abhishek.sampleapp.api.auth.OpenApiAuthService
 import com.abhishek.sampleapp.persistence.AccountPropertiesDao
 import com.abhishek.sampleapp.persistence.AuthTokenDao
@@ -32,13 +33,17 @@ class AuthModule {
         sessionManager: SessionManager,
         authTokenDao: AuthTokenDao,
         accountPropertiesDao: AccountPropertiesDao,
-        openApiAuthService: OpenApiAuthService
+        openApiAuthService: OpenApiAuthService,
+        sharedPreferences: SharedPreferences,
+        sharedPrefersEditor: SharedPreferences.Editor
     ): AuthRepository {
         return AuthRepository(
             authTokenDao,
             accountPropertiesDao,
             openApiAuthService,
-            sessionManager
+            sessionManager,
+            sharedPreferences,
+            sharedPrefersEditor
         )
     }
 }

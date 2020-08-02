@@ -43,7 +43,7 @@ constructor(
                 )
             }
             is checkPreviousAuthEvent -> {
-                return AbsentLiveData.create()
+                return authRepository.checkPreviousAuthUser()
             }
         }
     }
