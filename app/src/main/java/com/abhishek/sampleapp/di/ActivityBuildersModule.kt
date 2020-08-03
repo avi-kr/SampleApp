@@ -4,6 +4,10 @@ import com.abhishek.sampleapp.di.auth.AuthFragmentBuildersModule
 import com.abhishek.sampleapp.di.auth.AuthModule
 import com.abhishek.sampleapp.di.auth.AuthScope
 import com.abhishek.sampleapp.di.auth.AuthViewModelModule
+import com.abhishek.sampleapp.di.main.MainFragmentBuildersModule
+import com.abhishek.sampleapp.di.main.MainModule
+import com.abhishek.sampleapp.di.main.MainScope
+import com.abhishek.sampleapp.di.main.MainViewModelModule
 import com.abhishek.sampleapp.ui.auth.AuthActivity
 import com.abhishek.sampleapp.ui.main.MainActivity
 import dagger.Module
@@ -23,6 +27,9 @@ abstract class ActivityBuildersModule {
     )
     abstract fun contributeAuthActivity(): AuthActivity
 
-    @ContributesAndroidInjector
+    @MainScope
+    @ContributesAndroidInjector(
+        modules = [MainModule::class, MainFragmentBuildersModule::class, MainViewModelModule::class]
+    )
     abstract fun contributeMainActivity(): MainActivity
 }
