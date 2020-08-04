@@ -23,6 +23,7 @@
         android:name="com.abhishek.sampleapp.ui.main.blog.ViewBlogFragment"
         android:label="fragment_view_blog"
         tools:layout="@layout/fragment_view_blog">
+
         <action
             android:id="@+id/action_viewBlogFragment_to_updateBlogFragment"
             app:destination="@id/updateBlogFragment"
@@ -30,14 +31,15 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
         <action
-            android:id="@+id/action_viewBlogFragment_to_blogFragment"
+            android:id="@+id/action_viewBlogFragment_to_home"
             app:destination="@id/blogFragment"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/nav_blog"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
+            app:popUpTo="@+id/nav_blog"
             app:popUpToInclusive="true" />
     </fragment>
     <fragment
@@ -46,7 +48,7 @@
         android:label="fragment_update_blog"
         tools:layout="@layout/fragment_update_blog">
         <action
-            android:id="@+id/action_updateBlogFragment_to_blogFragment"
+            android:id="@+id/action_updateBlogFragment_to_home"
             app:destination="@id/blogFragment"
             app:enterAnim="@anim/fade_in"
             app:exitAnim="@anim/fade_out"
