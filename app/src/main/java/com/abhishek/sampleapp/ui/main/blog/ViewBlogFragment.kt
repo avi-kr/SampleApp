@@ -1,12 +1,7 @@
 package com.abhishek.sampleapp.ui.main.blog
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.navigation.fragment.findNavController
 import com.abhishek.sampleapp.R
 
@@ -15,7 +10,7 @@ import com.abhishek.sampleapp.R
  * (c)2020 VMock. All rights reserved.
  */
 
-class ViewBlogFragment : BaseBlogFragment() {
+class ViewBlogFragment : BaseBlogFragment(){
 
 
     override fun onCreateView(
@@ -34,7 +29,7 @@ class ViewBlogFragment : BaseBlogFragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
-        if (isAuthorOfBlogPost) {
+        if(isAuthorOfBlogPost){
             inflater.inflate(R.menu.edit_view_menu, menu)
         }
     }
@@ -42,8 +37,8 @@ class ViewBlogFragment : BaseBlogFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // TODO("Check if user is author of blog post")
         val isAuthorOfBlogPost = true
-        if (isAuthorOfBlogPost) {
-            when (item.itemId) {
+        if(isAuthorOfBlogPost){
+            when(item.itemId){
                 R.id.edit -> {
                     navUpdateBlogFragment()
                     return true
@@ -53,7 +48,7 @@ class ViewBlogFragment : BaseBlogFragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun navUpdateBlogFragment() {
+    private fun navUpdateBlogFragment(){
         findNavController().navigate(R.id.action_viewBlogFragment_to_updateBlogFragment)
     }
 }
