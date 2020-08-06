@@ -15,9 +15,6 @@ import javax.inject.Inject
 
 class AccountFragment : BaseAccountFragment(){
 
-    @Inject
-    lateinit var sessionManager: SessionManager
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,7 +32,7 @@ class AccountFragment : BaseAccountFragment(){
         }
 
         logout_button.setOnClickListener {
-            sessionManager.logout()
+            viewModel.logout()
         }
     }
 
