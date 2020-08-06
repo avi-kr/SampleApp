@@ -35,10 +35,11 @@ import kotlinx.coroutines.withContext
  * (c)2020 VMock. All rights reserved.
  */
 
-abstract class NetworkBoundResource<ResponseObject, ViewStateType>
+abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
     (
     isNetworkAvailable: Boolean, //is there a network connection?
-    isNetworkRequest: Boolean // is this a network request?
+    isNetworkRequest: Boolean, // is this a network request?
+    shouldLoadFromCache: Boolean //  should the cached data be loaded?
 ) {
 
     private val TAG: String = "AppDebug"
@@ -49,7 +50,15 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
 
     init {
         setJob(initNewJob())
-        setValue(DataState.loading(isLoading = true, cacheData = null))
+        setValue(DataState.loading(isLoading = true, cachedData = null))
+
+        if (shouldLoadFromCache) {
+            val dbSource = LoadFromCache()
+            result.addSource(dbSource) {
+                result.removeSource(dbSource)
+                setValue(DataState.loading(isLoading = true, cachedData = it))
+            }
+        }
 
         if (isNetworkRequest) {
             if (isNetworkAvailable) {
@@ -172,12 +181,15 @@ abstract class NetworkBoundResource<ResponseObject, ViewStateType>
 
     fun asLiveData() = result as LiveData<DataState<ViewStateType>>
 
-
     abstract suspend fun createCacheRequestAndReturn()
 
     abstract suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<ResponseObject>)
 
     abstract fun createCall(): LiveData<GenericApiResponse<ResponseObject>>
+
+    abstract fun LoadFromCache(): LiveData<ViewStateType>
+
+    abstract suspend fun updateLocalDb(cacheObject: CacheObject?)
 
     abstract fun setJob(job: Job)
 }

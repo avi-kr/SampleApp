@@ -54,7 +54,7 @@ class ForgotPasswordFragment : BaseAuthFragment() {
             Log.d(TAG, "onLoading... ")
             CoroutineScope(Dispatchers.Main).launch {
                 stateChangeListener.onDataStateChange(
-                    DataState.loading(isLoading = isLoading, cacheData = null)
+                    DataState.loading(isLoading = isLoading, cachedData = null)
                 )
             }
         }
@@ -82,13 +82,13 @@ class ForgotPasswordFragment : BaseAuthFragment() {
     @SuppressLint("SetJavaScriptEnabled")
     fun loadPasswordResetWebView() {
         stateChangeListener.onDataStateChange(
-            DataState.loading(isLoading = true, cacheData = null)
+            DataState.loading(isLoading = true, cachedData = null)
         )
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 stateChangeListener.onDataStateChange(
-                    DataState.loading(isLoading = false, cacheData = null)
+                    DataState.loading(isLoading = false, cachedData = null)
                 )
             }
         }

@@ -25,12 +25,12 @@ data class DataState<T>(
 
         fun <T> loading(
             isLoading: Boolean,
-            cacheData: T? = null
+            cachedData: T? = null
         ): DataState<T> {
             return DataState(
                 loading = Loading(isLoading),
                 data = Data(
-                    Event.dataEvent(cacheData),
+                    Event.dataEvent(cachedData),
                     null
                 )
             )
