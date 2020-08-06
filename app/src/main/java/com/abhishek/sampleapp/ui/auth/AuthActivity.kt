@@ -94,4 +94,8 @@ class AuthActivity : BaseActivity(), NavController.OnDestinationChangedListener 
         }
     }
 
+    override fun expandAppBar() {
+        // ignore
+    }
+
 }

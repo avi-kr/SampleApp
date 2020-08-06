@@ -17,6 +17,7 @@ import com.abhishek.sampleapp.ui.main.blog.UpdateBlogFragment
 import com.abhishek.sampleapp.ui.main.blog.ViewBlogFragment
 import com.abhishek.sampleapp.util.BottomNavController
 import com.abhishek.sampleapp.util.setUpNavigation
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.progress_bar
 import kotlinx.android.synthetic.main.activity_main.tool_bar
@@ -59,7 +60,7 @@ class MainActivity : BaseActivity(),
     }
 
     override fun onGraphChange() {
-//        TODO("What needs to happen when the graph changes?")
+        expandAppBar()
     }
 
     override fun onReselectNavItem(
@@ -130,6 +131,10 @@ class MainActivity : BaseActivity(),
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun expandAppBar() {
+        findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
     }
 
     override fun displayProgressBar(bool: Boolean) {

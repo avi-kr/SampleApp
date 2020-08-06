@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/launcherFragment"
         android:name="com.abhishek.sampleapp.ui.auth.LauncherFragment"
-        android:label="fragment_launcher"
+        android:label="@string/launcher"
         tools:layout="@layout/fragment_launcher">
         <action
             android:id="@+id/action_launcherFragment_to_registerFragment"
@@ -35,16 +35,16 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.abhishek.sampleapp.ui.auth.LoginFragment"
-        android:label="fragment_login"
+        android:label="@string/login"
         tools:layout="@layout/fragment_login" />
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.abhishek.sampleapp.ui.auth.RegisterFragment"
-        android:label="fragment_register"
+        android:label="@string/register"
         tools:layout="@layout/fragment_register" />
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.abhishek.sampleapp.ui.auth.ForgotPasswordFragment"
-        android:label="fragment_forgot_password"
+        android:label="@string/forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
 </navigation>

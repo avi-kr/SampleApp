@@ -7,6 +7,7 @@ package com.abhishek.sampleapp.ui
 
 interface DataStateChangeListener {
 
-    fun  onDataStateChange(dataState: DataState<*>)
+    fun onDataStateChange(dataState: DataState<*>)
 
+    fun expandAppBar()
 }
