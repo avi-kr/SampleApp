@@ -57,6 +57,7 @@ class ChangePasswordFragment : BaseAccountFragment() {
                                 .message
                                 .equals(RESPONSE_PASSWORD_UPDATE_SUCCESS)
                         ) {
+                            stateChangeListener.hideSoftKeyboard()
                             findNavController().popBackStack()
                         }
                     }
