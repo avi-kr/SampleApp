@@ -118,7 +118,7 @@ constructor(
             }
 
             // not used in this case
-            override fun LoadFromCache(): LiveData<AuthViewState> {
+            override fun loadFromCache(): LiveData<AuthViewState> {
                 return AbsentLiveData.create()
             }
 
@@ -204,7 +204,7 @@ constructor(
             }
 
             // not used in this case
-            override fun LoadFromCache(): LiveData<AuthViewState> {
+            override fun loadFromCache(): LiveData<AuthViewState> {
                 return AbsentLiveData.create()
             }
 
@@ -272,7 +272,7 @@ constructor(
             }
 
             // not used in this case
-            override fun LoadFromCache(): LiveData<AuthViewState> {
+            override fun loadFromCache(): LiveData<AuthViewState> {
                 return AbsentLiveData.create()
             }
 

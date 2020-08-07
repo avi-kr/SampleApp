@@ -17,6 +17,7 @@ import com.abhishek.sampleapp.ui.main.account.state.AccountViewState
 import com.abhishek.sampleapp.util.AbsentLiveData
 import com.abhishek.sampleapp.util.ApiSuccessResponse
 import com.abhishek.sampleapp.util.GenericApiResponse
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
@@ -49,7 +50,7 @@ constructor(
             override suspend fun createCacheRequestAndReturn() {
                 withContext(Main) {
                     //finish by viewing the db cache
-                    result.addSource(LoadFromCache()) { viewState ->
+                    result.addSource(loadFromCache()) { viewState ->
                         onCompleteJob(
                             DataState.data(
                                 data = viewState,
@@ -76,7 +77,7 @@ constructor(
                 repositoryJob = job
             }
 
-            override fun LoadFromCache(): LiveData<AccountViewState> {
+            override fun loadFromCache(): LiveData<AccountViewState> {
                 return accountPropertiesDao.searchByPk(authToken.account_pk!!)
                     .switchMap {
                         object : LiveData<AccountViewState>() {
@@ -137,7 +138,7 @@ constructor(
             }
 
             // not used in this case
-            override fun LoadFromCache(): LiveData<AccountViewState> {
+            override fun loadFromCache(): LiveData<AccountViewState> {
                 return AbsentLiveData.create()
             }
 
@@ -147,6 +148,60 @@ constructor(
                     accountProperties.email,
                     accountProperties.username
                 )
+            }
+
+            override fun setJob(job: Job) {
+                repositoryJob?.cancel()
+                repositoryJob = job
+            }
+        }.asLiveData()
+    }
+
+    fun updatePassword(
+        authToken: AuthToken,
+        currentPassword: String,
+        newPassword: String,
+        confirmNewPassword: String
+    ): LiveData<DataState<AccountViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, AccountViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true,
+            true,
+            false
+        ) {
+
+            // not applicable
+            override suspend fun createCacheRequestAndReturn() {
+            }
+
+            override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<GenericResponse>) {
+                withContext(Dispatchers.Main) {
+                    // finish with success response
+                    onCompleteJob(
+                        DataState.data(
+                            null,
+                            Response(response.body.response, ResponseType.Toast())
+                        )
+                    )
+                }
+            }
+
+            // not used in this case
+            override fun loadFromCache(): LiveData<AccountViewState> {
+                return AbsentLiveData.create()
+            }
+
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.updatePassword(
+                    "Token ${authToken.token!!}",
+                    currentPassword,
+                    newPassword,
+                    confirmNewPassword
+                )
+            }
+
+            // not used in this case
+            override suspend fun updateLocalDb(cacheObject: Any?) {
             }
 
             override fun setJob(job: Job) {

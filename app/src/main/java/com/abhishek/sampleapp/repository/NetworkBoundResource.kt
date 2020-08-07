@@ -54,7 +54,7 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
         setValue(DataState.loading(isLoading = true, cachedData = null))
 
         if (shouldLoadFromCache) {
-            val dbSource = LoadFromCache()
+            val dbSource = loadFromCache()
             result.addSource(dbSource) {
                 result.removeSource(dbSource)
                 setValue(DataState.loading(isLoading = true, cachedData = it))
@@ -204,7 +204,7 @@ abstract class NetworkBoundResource<ResponseObject, CacheObject, ViewStateType>
 
     abstract fun createCall(): LiveData<GenericApiResponse<ResponseObject>>
 
-    abstract fun LoadFromCache(): LiveData<ViewStateType>
+    abstract fun loadFromCache(): LiveData<ViewStateType>
 
     abstract suspend fun updateLocalDb(cacheObject: CacheObject?)
 
