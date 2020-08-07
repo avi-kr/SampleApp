@@ -7,12 +7,12 @@ import com.abhishek.sampleapp.ui.BaseViewModel
 import com.abhishek.sampleapp.ui.DataState
 import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent
 import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent.LoginAttemptEvent
+import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent.None
 import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent.RegisterAttemptEvent
-import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent.checkPreviousAuthEvent
+import com.abhishek.sampleapp.ui.auth.state.AuthStateEvent.CheckPreviousAuthEvent
 import com.abhishek.sampleapp.ui.auth.state.AuthViewState
 import com.abhishek.sampleapp.ui.auth.state.LoginFields
 import com.abhishek.sampleapp.ui.auth.state.RegistrationFields
-import com.abhishek.sampleapp.util.AbsentLiveData
 import javax.inject.Inject
 
 /**
@@ -42,8 +42,16 @@ constructor(
                     stateEvent.confirm_password
                 )
             }
-            is checkPreviousAuthEvent -> {
+            is CheckPreviousAuthEvent -> {
                 return authRepository.checkPreviousAuthUser()
+            }
+            is None -> {
+                return object : LiveData<DataState<AuthViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState.data(null, null)
+                    }
+                }
             }
         }
     }
@@ -80,12 +88,16 @@ constructor(
     }
 
     fun cancelActiveJobs() {
+        handlePendingData()
         authRepository.cancelActiveJobs()
+    }
+
+    fun handlePendingData() {
+        setStateEvent(None())
     }
 
     override fun onCleared() {
         super.onCleared()
         cancelActiveJobs()
     }
-
 }

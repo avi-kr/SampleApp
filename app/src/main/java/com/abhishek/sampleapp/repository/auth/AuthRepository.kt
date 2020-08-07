@@ -10,6 +10,7 @@ import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.models.AuthToken
 import com.abhishek.sampleapp.persistence.AccountPropertiesDao
 import com.abhishek.sampleapp.persistence.AuthTokenDao
+import com.abhishek.sampleapp.repository.JobManager
 import com.abhishek.sampleapp.repository.NetworkBoundResource
 import com.abhishek.sampleapp.session.SessionManager
 import com.abhishek.sampleapp.ui.DataState
@@ -41,11 +42,9 @@ constructor(
     val sessionManager: SessionManager,
     val sharedPreferences: SharedPreferences,
     val sharedPrefersEditor: SharedPreferences.Editor
-) {
+) : JobManager("AuthRepository") {
 
     private val TAG: String = "AppDebug"
-
-    private var repositoryJob: Job? = null
 
     fun attemptLogin(email: String, password: String): LiveData<DataState<AuthViewState>> {
         val loginFieldErrors = LoginFields(email, password).isValidForLogin()
@@ -109,8 +108,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptLogin", job)
             }
 
             // not used in this case
@@ -195,8 +193,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("attemptRegistration", job)
             }
 
             // not used in this case
@@ -281,8 +278,7 @@ constructor(
             }
 
             override fun setJob(job: Job) {
-                repositoryJob?.cancel()
-                repositoryJob = job
+                addJob("checkPreviousAuthUser", job)
             }
         }.asLiveData()
     }
@@ -320,8 +316,4 @@ constructor(
         }
     }
 
-    fun cancelActiveJobs() {
-        Log.d(TAG, "AuthRepository: Cancelling on-going jobs...")
-        repositoryJob?.cancel()
-    }
 }

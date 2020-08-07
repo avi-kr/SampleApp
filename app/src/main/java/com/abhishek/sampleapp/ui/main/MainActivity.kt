@@ -11,10 +11,13 @@ import androidx.navigation.NavController
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.ui.BaseActivity
 import com.abhishek.sampleapp.ui.auth.AuthActivity
+import com.abhishek.sampleapp.ui.main.account.BaseAccountFragment
 import com.abhishek.sampleapp.ui.main.account.ChangePasswordFragment
 import com.abhishek.sampleapp.ui.main.account.UpdateAccountFragment
+import com.abhishek.sampleapp.ui.main.blog.BaseBlogFragment
 import com.abhishek.sampleapp.ui.main.blog.UpdateBlogFragment
 import com.abhishek.sampleapp.ui.main.blog.ViewBlogFragment
+import com.abhishek.sampleapp.ui.main.create_blog.BaseCreateBlogFragment
 import com.abhishek.sampleapp.util.BottomNavController
 import com.abhishek.sampleapp.util.setUpNavigation
 import com.google.android.material.appbar.AppBarLayout
@@ -60,7 +63,29 @@ class MainActivity : BaseActivity(),
     }
 
     override fun onGraphChange() {
+        cancelActiveJobs()
         expandAppBar()
+    }
+
+    private fun cancelActiveJobs() {
+        val fragments = bottomNavController.fragmentManager
+            .findFragmentById(bottomNavController.containerId)
+            ?.childFragmentManager
+            ?.fragments
+        if (fragments != null) {
+            for (fragment in fragments) {
+                if (fragment is BaseAccountFragment) {
+                    fragment.cancelActiveJobs()
+                }
+                if (fragment is BaseBlogFragment) {
+                    fragment.cancelActiveJobs()
+                }
+                if (fragment is BaseCreateBlogFragment) {
+                    fragment.cancelActiveJobs()
+                }
+            }
+        }
+        displayProgressBar(false)
     }
 
     override fun onReselectNavItem(
@@ -123,6 +148,10 @@ class MainActivity : BaseActivity(),
         })
     }
 
+    override fun expandAppBar() {
+        findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
+    }
+
     private fun setupActionBar() {
         setSupportActionBar(tool_bar)
     }
@@ -131,10 +160,6 @@ class MainActivity : BaseActivity(),
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
-    }
-
-    override fun expandAppBar() {
-        findViewById<AppBarLayout>(R.id.app_bar).setExpanded(true)
     }
 
     override fun displayProgressBar(bool: Boolean) {

@@ -1,6 +1,7 @@
 package com.abhishek.sampleapp.ui.auth
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +38,8 @@ class LauncherFragment : BaseAuthFragment() {
         }
 
         focusable_view.requestFocus() // reset focus
+
+        Log.d(TAG, "LauncherFragment: ${viewModel}")
     }
 
     fun navLogin() {
