@@ -1,10 +1,14 @@
 package com.abhishek.sampleapp.api.main
 
 import androidx.lifecycle.LiveData
+import com.abhishek.sampleapp.api.GenericResponse
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.util.GenericApiResponse
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.PUT
 
 /**
  * Created by Abhishek Kumar on 06/08/20.
@@ -17,4 +21,12 @@ interface OpenApiMainService {
     fun getAccountProperties(
         @Header("Authorization") authorization: String
     ): LiveData<GenericApiResponse<AccountProperties>>
+
+    @PUT("account/properties/update")
+    @FormUrlEncoded
+    fun saveAccountProperties(
+        @Header("Authorization") authorization: String,
+        @Field("email") email: String,
+        @Field("username") username: String
+    ): LiveData<GenericApiResponse<GenericResponse>>
 }
