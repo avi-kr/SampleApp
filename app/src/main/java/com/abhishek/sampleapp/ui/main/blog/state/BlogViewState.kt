@@ -9,7 +9,7 @@ import com.abhishek.sampleapp.models.BlogPost
 
 data class BlogViewState(
     // BlogFragments vars
-    var blogFiels: BlogFields = BlogFields()
+    var blogFields: BlogFields = BlogFields()
 
     // View Blog Fragments vars
 

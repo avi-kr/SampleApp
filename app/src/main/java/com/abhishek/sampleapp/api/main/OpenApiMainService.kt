@@ -2,6 +2,7 @@ package com.abhishek.sampleapp.api.main
 
 import androidx.lifecycle.LiveData
 import com.abhishek.sampleapp.api.GenericResponse
+import com.abhishek.sampleapp.api.main.responses.BlogListSearchResponse
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.util.GenericApiResponse
 import retrofit2.http.Field
@@ -9,6 +10,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
+import retrofit2.http.Query
 
 /**
  * Created by Abhishek Kumar on 06/08/20.
@@ -38,4 +40,11 @@ interface OpenApiMainService {
         @Field("new_password") newPassword: String,
         @Field("confirm_new_password") confirmNewPassword: String
     ): LiveData<GenericApiResponse<GenericResponse>>
+
+    @GET("blog/list")
+    fun searchListBlogPosts(
+        @Header("Authorization") authorization: String,
+        @Query("search") query: String
+    ): LiveData<GenericApiResponse<BlogListSearchResponse>>
+
 }
