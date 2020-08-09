@@ -13,10 +13,7 @@ import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.models.BlogPost
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
 import com.abhishek.sampleapp.util.TopSpacingItemDecoration
-import com.bumptech.glide.RequestManager
 import kotlinx.android.synthetic.main.fragment_blog.blog_post_recyclerview
-import kotlinx.android.synthetic.main.fragment_blog.goViewBlogFragment
-import javax.inject.Inject
 
 /**
  * Created by Abhishek Kumar on 03/08/20.
@@ -25,9 +22,6 @@ import javax.inject.Inject
 
 class BlogFragment : BaseBlogFragment(),
     BlogListAdapter.Interaction {
-
-    @Inject
-    lateinit var requestManager: RequestManager
 
     private lateinit var recyclerAdapter: BlogListAdapter
 
@@ -42,10 +36,6 @@ class BlogFragment : BaseBlogFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
-
-        goViewBlogFragment.setOnClickListener {
-            findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
-        }
 
         initRecyclerView()
         subscribeObservers()
@@ -109,7 +99,8 @@ class BlogFragment : BaseBlogFragment(),
     }
 
     override fun onItemSelected(position: Int, item: BlogPost) {
-        Log.d(TAG, "onItemSelected: position, BlogPost: $position, ${item}")
+        viewModel.setBlogPost(item)
+        findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
     }
 
     override fun onDestroyView() {

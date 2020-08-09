@@ -12,6 +12,7 @@ import androidx.navigation.ui.NavigationUI
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.ui.DataStateChangeListener
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
+import com.bumptech.glide.RequestManager
 import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
@@ -24,11 +25,15 @@ abstract class BaseBlogFragment : DaggerFragment() {
 
     val TAG: String = "AppDebug"
 
-    @Inject lateinit var providerFactory: ViewModelProviderFactory
+    @Inject
+    lateinit var requestManager: RequestManager
 
-    lateinit var viewModel: BlogViewModel
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
 
     lateinit var stateChangeListener: DataStateChangeListener
+
+    lateinit var viewModel: BlogViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

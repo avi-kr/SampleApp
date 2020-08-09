@@ -10,12 +10,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.abhishek.sampleapp.R
-import com.abhishek.sampleapp.R.layout
 import com.abhishek.sampleapp.models.BlogPost
 import com.abhishek.sampleapp.util.DateUtils
 import com.abhishek.sampleapp.util.GenericViewHolder
 import com.bumptech.glide.RequestManager
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.blog_author
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.blog_image
 import kotlinx.android.synthetic.main.layout_blog_list_item.view.blog_title
@@ -54,10 +53,44 @@ class BlogListAdapter(
             return oldItem == newItem
         }
     }
-    private val differ = AsyncListDiffer(
-        BlogRecyclerChangeCallback(this),
-        AsyncDifferConfig.Builder(DIFF_CALLBACK).build()
-    )
+    private val differ =
+        AsyncListDiffer(
+            BlogRecyclerChangeCallback(this),
+            AsyncDifferConfig.Builder(DIFF_CALLBACK).build()
+        )
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+
+        when (viewType) {
+
+            NO_MORE_RESULTS -> {
+                Log.e(TAG, "onCreateViewHolder: No more results...")
+                return GenericViewHolder(
+                    LayoutInflater.from(parent.context).inflate(
+                        R.layout.layout_no_more_results,
+                        parent,
+                        false
+                    )
+                )
+            }
+
+            BLOG_ITEM -> {
+                return BlogViewHolder(
+                    LayoutInflater.from(parent.context)
+                        .inflate(R.layout.layout_blog_list_item, parent, false),
+                    interaction = interaction,
+                    requestManager = requestManager
+                )
+            }
+            else -> {
+                return BlogViewHolder(
+                    LayoutInflater.from(parent.context).inflate(R.layout.layout_blog_list_item, parent, false),
+                    interaction = interaction,
+                    requestManager = requestManager
+                )
+            }
+        }
+    }
 
     internal inner class BlogRecyclerChangeCallback(
         private val adapter: BlogListAdapter
@@ -80,37 +113,6 @@ class BlogListAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-
-        when (viewType) {
-            NO_MORE_RESULTS -> {
-                Log.e(TAG, "onCreateViewHolder: No more results...")
-                return GenericViewHolder(
-                    LayoutInflater.from(parent.context).inflate(
-                        layout.layout_no_more_results,
-                        parent,
-                        false
-                    )
-                )
-            }
-            BLOG_ITEM -> {
-                return BlogViewHolder(
-                    LayoutInflater.from(parent.context)
-                        .inflate(R.layout.layout_blog_list_item, parent, false),
-                    interaction = interaction,
-                    requestManager = requestManager
-                )
-            }
-            else -> {
-                return BlogViewHolder(
-                    LayoutInflater.from(parent.context).inflate(R.layout.layout_blog_list_item, parent, false),
-                    interaction = interaction,
-                    requestManager = requestManager
-                )
-            }
-        }
-    }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is BlogViewHolder -> {
@@ -119,15 +121,15 @@ class BlogListAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return differ.currentList.size
-    }
-
     override fun getItemViewType(position: Int): Int {
         if (differ.currentList.get(position).pk > -1) {
             return BLOG_ITEM
         }
         return differ.currentList.get(position).pk
+    }
+
+    override fun getItemCount(): Int {
+        return differ.currentList.size
     }
 
     fun submitList(blogList: List<BlogPost>?, isQueryExhausted: Boolean) {
@@ -151,7 +153,7 @@ class BlogListAdapter(
 
             requestManager
                 .load(item.image)
-                .transition(DrawableTransitionOptions.withCrossFade())
+                .transition(withCrossFade())
                 .into(itemView.blog_image)
             itemView.blog_title.text = item.title
             itemView.blog_author.text = item.username

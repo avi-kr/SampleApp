@@ -8,16 +8,21 @@ import com.abhishek.sampleapp.models.BlogPost
  */
 
 data class BlogViewState(
-    // BlogFragments vars
-    var blogFields: BlogFields = BlogFields()
 
-    // View Blog Fragments vars
+    // BlogFragment vars
+    var blogFields: BlogFields = BlogFields(),
 
-    // Update Blog Fragments vars
+    // ViewBlogFragment vars
+    var viewBlogFields: ViewBlogFields = ViewBlogFields()
 ) {
 
     data class BlogFields(
         var blogList: List<BlogPost> = ArrayList<BlogPost>(),
         var searchQuery: String = ""
+    )
+
+    data class ViewBlogFields(
+        var blogPost: BlogPost? = null,
+        var isAuthorOfBlogPost: Boolean = false
     )
 }

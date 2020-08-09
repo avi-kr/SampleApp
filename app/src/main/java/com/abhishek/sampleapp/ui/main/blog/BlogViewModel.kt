@@ -9,6 +9,7 @@ import com.abhishek.sampleapp.ui.BaseViewModel
 import com.abhishek.sampleapp.ui.DataState
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.None
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 import com.abhishek.sampleapp.util.AbsentLiveData
@@ -31,14 +32,20 @@ constructor(
 
     override fun handleStateEvent(stateEvent: BlogStateEvent): LiveData<DataState<BlogViewState>> {
         when (stateEvent) {
-            is BlogSearchEvent ->{
+
+            is BlogSearchEvent -> {
                 return sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.searchBlogPosts(
                         authToken,
                         viewState.value!!.blogFields.searchQuery
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
             }
+
+            is CheckAuthorOfBlogPost -> {
+                return AbsentLiveData.create()
+            }
+
             is None -> {
                 return AbsentLiveData.create()
             }
@@ -51,9 +58,6 @@ constructor(
 
     fun setQuery(query: String) {
         val update = getCurrentViewStateOrNew()
-//        if (query.equals(update.blogFields.searchQuery)) {
-//            return
-//        }
         update.blogFields.searchQuery = query
         _viewState.value = update
     }
@@ -64,12 +68,24 @@ constructor(
         _viewState.value = update
     }
 
-    fun cancelActiveJobs() {
-        blogRepository.cancelActiveJobs()
-        handlePendingData()
+    fun setBlogPost(blogPost: BlogPost) {
+        val update = getCurrentViewStateOrNew()
+        update.viewBlogFields.blogPost = blogPost
+        _viewState.value = update
     }
 
-    private fun handlePendingData() {
+    fun setIsAuthorOfBlogPost(isAuthorOfBlogPost: Boolean) {
+        val update = getCurrentViewStateOrNew()
+        update.viewBlogFields.isAuthorOfBlogPost = isAuthorOfBlogPost
+        _viewState.value = update
+    }
+
+    fun cancelActiveJobs() {
+        blogRepository.cancelActiveJobs() // cancel active jobs
+        handlePendingData() // hide progress bar
+    }
+
+    fun handlePendingData() {
         setStateEvent(None())
     }
 
