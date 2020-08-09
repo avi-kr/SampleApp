@@ -3,7 +3,7 @@ package com.abhishek.sampleapp.di.main
 import androidx.lifecycle.ViewModel
 import com.abhishek.sampleapp.di.ViewModelKey
 import com.abhishek.sampleapp.ui.main.account.AccountViewModel
-import com.abhishek.sampleapp.ui.main.blog.BlogViewModel
+import com.abhishek.sampleapp.ui.main.blog.viewmodel.BlogViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

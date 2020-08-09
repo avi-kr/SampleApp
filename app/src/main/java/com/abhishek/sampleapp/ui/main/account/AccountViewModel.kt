@@ -6,6 +6,7 @@ import com.abhishek.sampleapp.repository.main.AccountRepository
 import com.abhishek.sampleapp.session.SessionManager
 import com.abhishek.sampleapp.ui.BaseViewModel
 import com.abhishek.sampleapp.ui.DataState
+import com.abhishek.sampleapp.ui.Loading
 import com.abhishek.sampleapp.ui.main.account.state.AccountStateEvent
 import com.abhishek.sampleapp.ui.main.account.state.AccountStateEvent.ChangePasswordEvent
 import com.abhishek.sampleapp.ui.main.account.state.AccountStateEvent.GetAccountPropertiesEvent
@@ -59,7 +60,12 @@ constructor(
                 } ?: AbsentLiveData.create()
             }
             is None -> {
-                return AbsentLiveData.create()
+                return object : LiveData<DataState<AccountViewState>>() {
+                    override fun onActive() {
+                        super.onActive()
+                        value = DataState(null, Loading(false), null)
+                    }
+                }
             }
         }
     }
@@ -74,7 +80,7 @@ constructor(
             return
         }
         update.accountProperties = accountProperties
-        _viewState.value = update
+        setViewState(update)
     }
 
     fun logout() {
