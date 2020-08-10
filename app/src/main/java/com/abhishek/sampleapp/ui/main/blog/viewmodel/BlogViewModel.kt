@@ -11,6 +11,7 @@ import com.abhishek.sampleapp.ui.Loading
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.None
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 import com.abhishek.sampleapp.util.AbsentLiveData
@@ -68,6 +69,15 @@ constructor(
                     blogRepository.isAuthorOfBlogPost(
                         authToken = authToken,
                         slug = getSlug()
+                    )
+                }?: AbsentLiveData.create()
+            }
+
+            is DeleteBlogPostEvent -> {
+                return sessionManager.cachedToken.value?.let { authToken ->
+                    blogRepository.deleteBlogPost(
+                        authToken = authToken,
+                        blogPost = getBlogPost()
                     )
                 }?: AbsentLiveData.create()
             }

@@ -5,6 +5,7 @@ import com.abhishek.sampleapp.api.GenericResponse
 import com.abhishek.sampleapp.api.main.responses.BlogListSearchResponse
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.util.GenericApiResponse
+import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
@@ -52,6 +53,12 @@ interface OpenApiMainService {
 
     @GET("blog/{slug}/is_author")
     fun isAuthorOfBlogPost(
+        @Header("Authorization") authorization: String,
+        @Path("slug") slug: String
+    ): LiveData<GenericApiResponse<GenericResponse>>
+
+    @DELETE("blog/{slug}/delete")
+    fun deleteBlogPost(
         @Header("Authorization") authorization: String,
         @Path("slug") slug: String
     ): LiveData<GenericApiResponse<GenericResponse>>

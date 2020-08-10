@@ -11,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.ui.DataStateChangeListener
+import com.abhishek.sampleapp.ui.UICommunicationListener
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.BlogViewModel
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
 import com.bumptech.glide.RequestManager
@@ -33,6 +34,8 @@ abstract class BaseBlogFragment : DaggerFragment() {
     lateinit var providerFactory: ViewModelProviderFactory
 
     lateinit var stateChangeListener: DataStateChangeListener
+
+    lateinit var uiCommunicationListener: UICommunicationListener
 
     lateinit var viewModel: BlogViewModel
 
@@ -69,6 +72,11 @@ abstract class BaseBlogFragment : DaggerFragment() {
             stateChangeListener = context as DataStateChangeListener
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement DataStateChangeListener")
+        }
+        try {
+            uiCommunicationListener = context as UICommunicationListener
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement UICommunicationListener")
         }
     }
 }

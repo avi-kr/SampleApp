@@ -1,5 +1,7 @@
 package com.abhishek.sampleapp.ui.main.blog.viewmodel
 
+import com.abhishek.sampleapp.models.BlogPost
+
 /**
  * Created by Abhishek Kumar on 09/08/20.
  * (c)2020 VMock. All rights reserved.
@@ -54,4 +56,16 @@ fun BlogViewModel.isAuthorOfBlogPost(): Boolean {
     getCurrentViewStateOrNew().let {
         return it.viewBlogFields.isAuthorOfBlogPost
     }
+}
+
+fun BlogViewModel.getBlogPost(): BlogPost {
+    getCurrentViewStateOrNew().let {
+        return it.viewBlogFields.blogPost?.let {
+            return it
+        } ?: getDummyBlogPost()
+    }
+}
+
+fun BlogViewModel.getDummyBlogPost(): BlogPost {
+    return BlogPost(-1, "", "", "", "", 1, "")
 }

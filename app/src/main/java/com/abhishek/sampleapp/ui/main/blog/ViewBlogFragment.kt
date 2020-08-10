@@ -10,11 +10,18 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.abhishek.sampleapp.R
+import com.abhishek.sampleapp.R.string
 import com.abhishek.sampleapp.models.BlogPost
+import com.abhishek.sampleapp.ui.AreYouSureCallback
+import com.abhishek.sampleapp.ui.UIMessage
+import com.abhishek.sampleapp.ui.UIMessageType
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.isAuthorOfBlogPost
+import com.abhishek.sampleapp.ui.main.blog.viewmodel.removeDeletedBlogPost
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setIsAuthorOfBlogPost
 import com.abhishek.sampleapp.util.DateUtils
+import com.abhishek.sampleapp.util.SuccessHandling.Companion.SUCCESS_BLOG_DELETED
 import kotlinx.android.synthetic.main.fragment_view_blog.blog_author
 import kotlinx.android.synthetic.main.fragment_view_blog.blog_body
 import kotlinx.android.synthetic.main.fragment_view_blog.blog_image
@@ -44,6 +51,35 @@ class ViewBlogFragment : BaseBlogFragment() {
         subscribeObservers()
         checkIsAuthorOfBlogPost()
         stateChangeListener.expandAppBar()
+
+        delete_button.setOnClickListener {
+            confirmDeleteRequest()
+        }
+    }
+
+    private fun confirmDeleteRequest() {
+        val callback: AreYouSureCallback = object : AreYouSureCallback {
+
+            override fun proceed() {
+                deleteBlogPost()
+            }
+
+            override fun cancel() {
+                // ignore
+            }
+        }
+        uiCommunicationListener.onUIMessageReceived(
+            UIMessage(
+                getString(string.are_you_sure_delete),
+                UIMessageType.AreYouSureDialog(callback)
+            )
+        )
+    }
+
+    fun deleteBlogPost() {
+        viewModel.setStateEvent(
+            DeleteBlogPostEvent()
+        )
     }
 
     fun checkIsAuthorOfBlogPost() {
@@ -60,6 +96,12 @@ class ViewBlogFragment : BaseBlogFragment() {
                         viewModel.setIsAuthorOfBlogPost(
                             viewState.viewBlogFields.isAuthorOfBlogPost
                         )
+                    }
+                    data.response?.peekContent()?.let { response ->
+                        if (response.message.equals(SUCCESS_BLOG_DELETED)) {
+                            viewModel.removeDeletedBlogPost()
+                            findNavController().popBackStack()
+                        }
                     }
                 }
             }

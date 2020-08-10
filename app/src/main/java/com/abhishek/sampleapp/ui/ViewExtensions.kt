@@ -1,6 +1,6 @@
 package com.abhishek.sampleapp.ui
 
-import android.content.Context
+import android.app.Activity
 import android.widget.Toast
 import androidx.annotation.StringRes
 import com.abhishek.sampleapp.R
@@ -11,15 +11,15 @@ import com.afollestad.materialdialogs.MaterialDialog
  * (c)2020 VMock. All rights reserved.
  */
 
-fun Context.displayToast(@StringRes message: Int) {
+fun Activity.displayToast(@StringRes message: Int) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun Context.displayToast(message: String) {
+fun Activity.displayToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }
 
-fun Context.displaySuccessDialog(message: String?) {
+fun Activity.displaySuccessDialog(message: String?) {
     MaterialDialog(this)
         .show {
             title(R.string.text_success)
@@ -28,11 +28,41 @@ fun Context.displaySuccessDialog(message: String?) {
         }
 }
 
-fun Context.displayErrorDialog(message: String?) {
+fun Activity.displayErrorDialog(message: String?) {
     MaterialDialog(this)
         .show {
             title(R.string.text_error)
             message(text = message)
             positiveButton(R.string.text_ok)
         }
+}
+
+fun Activity.displayInfoDialog(message: String?) {
+    MaterialDialog(this)
+        .show {
+            title(R.string.text_info)
+            message(text = message)
+            positiveButton(R.string.text_ok)
+        }
+}
+
+fun Activity.areYouSureDialog(message: String, callback: AreYouSureCallback) {
+    MaterialDialog(this)
+        .show {
+            title(R.string.are_you_sure)
+            message(text = message)
+            negativeButton(R.string.text_cancel) {
+                callback.cancel()
+            }
+            positiveButton(R.string.text_yes) {
+                callback.proceed()
+            }
+        }
+}
+
+interface AreYouSureCallback {
+
+    fun proceed()
+
+    fun cancel()
 }
