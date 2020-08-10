@@ -10,6 +10,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -48,4 +49,11 @@ interface OpenApiMainService {
         @Query("ordering") ordering: String,
         @Query("page") page: Int
     ): LiveData<GenericApiResponse<BlogListSearchResponse>>
+
+    @GET("blog/{slug}/is_author")
+    fun isAuthorOfBlogPost(
+        @Header("Authorization") authorization: String,
+        @Path("slug") slug: String
+    ): LiveData<GenericApiResponse<GenericResponse>>
+
 }

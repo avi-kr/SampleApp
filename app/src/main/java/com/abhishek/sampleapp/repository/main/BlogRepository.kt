@@ -3,6 +3,7 @@ package com.abhishek.sampleapp.repository.main
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
+import com.abhishek.sampleapp.api.GenericResponse
 import com.abhishek.sampleapp.api.main.OpenApiMainService
 import com.abhishek.sampleapp.api.main.responses.BlogListSearchResponse
 import com.abhishek.sampleapp.models.AuthToken
@@ -14,10 +15,15 @@ import com.abhishek.sampleapp.repository.NetworkBoundResource
 import com.abhishek.sampleapp.session.SessionManager
 import com.abhishek.sampleapp.ui.DataState
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
+import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState.ViewBlogFields
+import com.abhishek.sampleapp.util.AbsentLiveData
 import com.abhishek.sampleapp.util.ApiSuccessResponse
 import com.abhishek.sampleapp.util.Constants.Companion.PAGINATION_PAGE_SIZE
 import com.abhishek.sampleapp.util.DateUtils
+import com.abhishek.sampleapp.util.ErrorHandling.Companion.ERROR_UNKNOWN
 import com.abhishek.sampleapp.util.GenericApiResponse
+import com.abhishek.sampleapp.util.SuccessHandling.Companion.RESPONSE_HAS_PERMISSION_TO_EDIT
+import com.abhishek.sampleapp.util.SuccessHandling.Companion.RESPONSE_NO_PERMISSION_TO_EDIT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -150,6 +156,77 @@ constructor(
 
             override fun setJob(job: Job) {
                 addJob("searchBlogPosts", job)
+            }
+        }.asLiveData()
+    }
+
+    fun isAuthorOfBlogPost(
+        authToken: AuthToken,
+        slug: String
+    ): LiveData<DataState<BlogViewState>> {
+        return object : NetworkBoundResource<GenericResponse, Any, BlogViewState>(
+            sessionManager.isConnectedToTheInternet(),
+            true,
+            true,
+            false
+        ) {
+
+            // not applicable
+            override suspend fun createCacheRequestAndReturn() {
+            }
+
+            override suspend fun handleApiSuccessResponse(response: ApiSuccessResponse<GenericResponse>) {
+                withContext(Dispatchers.Main) {
+
+                    Log.d(TAG, "handleApiSuccessResponse: ${response.body.response}")
+                    if (response.body.response.equals(RESPONSE_NO_PERMISSION_TO_EDIT)) {
+                        onCompleteJob(
+                            DataState.data(
+                                data = BlogViewState(
+                                    viewBlogFields = ViewBlogFields(
+                                        isAuthorOfBlogPost = false
+                                    )
+                                ),
+                                response = null
+                            )
+                        )
+                    } else if (response.body.response.equals(RESPONSE_HAS_PERMISSION_TO_EDIT)) {
+                        onCompleteJob(
+                            DataState.data(
+                                data = BlogViewState(
+                                    viewBlogFields = ViewBlogFields(
+                                        isAuthorOfBlogPost = true
+                                    )
+                                ),
+                                response = null
+                            )
+                        )
+                    } else {
+                        onErrorReturn(ERROR_UNKNOWN, shouldUseDialog = false, shouldUseToast = false)
+                    }
+                }
+            }
+
+            // not applicable
+            override fun loadFromCache(): LiveData<BlogViewState> {
+                return AbsentLiveData.create()
+            }
+
+            // Make an update and change nothing.
+            // If they are not the author it will return: "You don't have permission to edit that."
+            override fun createCall(): LiveData<GenericApiResponse<GenericResponse>> {
+                return openApiMainService.isAuthorOfBlogPost(
+                    "Token ${authToken.token!!}",
+                    slug
+                )
+            }
+
+            // not applicable
+            override suspend fun updateLocalDb(cacheObject: Any?) {
+            }
+
+            override fun setJob(job: Job) {
+                addJob("isAuthorOfBlogPost", job)
             }
         }.asLiveData()
     }
