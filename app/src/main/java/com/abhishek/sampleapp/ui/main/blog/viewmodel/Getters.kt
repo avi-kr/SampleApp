@@ -5,6 +5,18 @@ package com.abhishek.sampleapp.ui.main.blog.viewmodel
  * (c)2020 VMock. All rights reserved.
  */
 
+fun BlogViewModel.getFilter(): String {
+    getCurrentViewStateOrNew().let {
+        return it.blogFields.filter
+    }
+}
+
+fun BlogViewModel.getOrder(): String {
+    getCurrentViewStateOrNew().let {
+        return it.blogFields.order
+    }
+}
+
 fun BlogViewModel.getSearchQuery(): String {
     getCurrentViewStateOrNew().let {
         return it.blogFields.searchQuery

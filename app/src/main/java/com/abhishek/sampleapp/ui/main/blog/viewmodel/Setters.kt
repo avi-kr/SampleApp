@@ -42,3 +42,20 @@ fun BlogViewModel.setIsAuthorOfBlogPost(isAuthorOfBlogPost: Boolean) {
     update.viewBlogFields.isAuthorOfBlogPost = isAuthorOfBlogPost
     setViewState(update)
 }
+
+// Filter can be "date_updated" or "username"
+fun BlogViewModel.setBlogFilter(filter: String?){
+    filter?.let{
+        val update = getCurrentViewStateOrNew()
+        update.blogFields.filter = filter
+        setViewState(update)
+    }
+}
+
+// Order can be "-" or ""
+// Note: "-" = DESC, "" = ASC
+fun BlogViewModel.setBlogOrder(order: String){
+    val update = getCurrentViewStateOrNew()
+    update.blogFields.order = order
+    setViewState(update)
+}
