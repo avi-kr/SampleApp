@@ -5,14 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import com.abhishek.sampleapp.R
+import com.abhishek.sampleapp.di.Injectable
 import com.abhishek.sampleapp.ui.DataStateChangeListener
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
-import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
 /**
@@ -20,7 +21,7 @@ import javax.inject.Inject
  * (c)2020 VMock. All rights reserved.
  */
 
-abstract class BaseAccountFragment : DaggerFragment() {
+abstract class BaseAccountFragment : Fragment(), Injectable {
 
     val TAG: String = "AppDebug"
 

@@ -2,9 +2,10 @@ package com.abhishek.sampleapp.ui.auth
 
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.abhishek.sampleapp.di.Injectable
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
-import dagger.android.support.DaggerFragment
 import javax.inject.Inject
 
 /**
@@ -12,7 +13,7 @@ import javax.inject.Inject
  * (c)2020 VMock. All rights reserved.
  */
 
-abstract class BaseAuthFragment : DaggerFragment() {
+abstract class BaseAuthFragment : Fragment(), Injectable {
 
     val TAG: String = "AppDebug"
 
