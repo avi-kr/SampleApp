@@ -1,5 +1,6 @@
 package com.abhishek.sampleapp.ui.main.blog.viewmodel
 
+import android.net.Uri
 import com.abhishek.sampleapp.models.BlogPost
 
 /**
@@ -68,4 +69,13 @@ fun BlogViewModel.getBlogPost(): BlogPost {
 
 fun BlogViewModel.getDummyBlogPost(): BlogPost {
     return BlogPost(-1, "", "", "", "", 1, "")
+}
+
+fun BlogViewModel.getUpdatedBlogUri(): Uri? {
+    getCurrentViewStateOrNew().let {
+        it.updatedBlogFields.updatedImageUri?.let {
+            return it
+        }
+    }
+    return null
 }

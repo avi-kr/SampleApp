@@ -2,15 +2,20 @@ package com.abhishek.sampleapp.api.main
 
 import androidx.lifecycle.LiveData
 import com.abhishek.sampleapp.api.GenericResponse
+import com.abhishek.sampleapp.api.main.responses.BlogCreateUpdateResponse
 import com.abhishek.sampleapp.api.main.responses.BlogListSearchResponse
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.util.GenericApiResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -63,4 +68,13 @@ interface OpenApiMainService {
         @Path("slug") slug: String
     ): LiveData<GenericApiResponse<GenericResponse>>
 
+    @Multipart
+    @PUT("blog/{slug}/update")
+    fun updateBlog(
+        @Header("Authorization") authorization: String,
+        @Path("slug") slug: String,
+        @Part("title") title: RequestBody,
+        @Part("body") body: RequestBody,
+        @Part image: MultipartBody.Part?
+    ): LiveData<GenericApiResponse<BlogCreateUpdateResponse>>
 }

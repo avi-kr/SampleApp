@@ -13,10 +13,13 @@ import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.None
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.UpdateBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 import com.abhishek.sampleapp.util.AbsentLiveData
 import com.abhishek.sampleapp.util.PreferenceKeys.Companion.BLOG_FILTER
 import com.abhishek.sampleapp.util.PreferenceKeys.Companion.BLOG_ORDER
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import javax.inject.Inject
 
 /**
@@ -78,6 +81,29 @@ constructor(
                     blogRepository.deleteBlogPost(
                         authToken = authToken,
                         blogPost = getBlogPost()
+                    )
+                }?: AbsentLiveData.create()
+            }
+
+            is UpdateBlogPostEvent -> {
+
+                return sessionManager.cachedToken.value?.let { authToken ->
+
+                    val title = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.title
+                    )
+                    val body = RequestBody.create(
+                        MediaType.parse("text/plain"),
+                        stateEvent.body
+                    )
+
+                    blogRepository.updateBlogPost(
+                        authToken = authToken,
+                        slug = getSlug(),
+                        title = title,
+                        body = body,
+                        image = stateEvent.image
                     )
                 }?: AbsentLiveData.create()
             }
