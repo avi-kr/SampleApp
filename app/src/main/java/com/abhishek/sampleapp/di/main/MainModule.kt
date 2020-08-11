@@ -6,6 +6,7 @@ import com.abhishek.sampleapp.persistence.AppDatabase
 import com.abhishek.sampleapp.persistence.BlogPostDao
 import com.abhishek.sampleapp.repository.main.AccountRepository
 import com.abhishek.sampleapp.repository.main.BlogRepository
+import com.abhishek.sampleapp.repository.main.CreateBlogRepository
 import com.abhishek.sampleapp.session.SessionManager
 import dagger.Module
 import dagger.Provides
@@ -56,4 +57,15 @@ class MainModule {
     ): BlogRepository {
         return BlogRepository(openApiMainService, blogPostDao, sessionManager)
     }
+
+    @MainScope
+    @Provides
+    fun provideCreateBlogRepository(
+        openApiMainService: OpenApiMainService,
+        blogPostDao: BlogPostDao,
+        sessionManager: SessionManager
+    ): CreateBlogRepository {
+        return CreateBlogRepository(openApiMainService, blogPostDao, sessionManager)
+    }
+
 }
