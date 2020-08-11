@@ -1,14 +1,16 @@
 package com.abhishek.sampleapp.models
 
+import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Created by Abhishek Kumar on 08/08/20.
  * (c)2020 VMock. All rights reserved.
  */
-
+@Parcelize
 @Entity(tableName = "blog_post")
 data class BlogPost(
 
@@ -34,7 +36,7 @@ data class BlogPost(
     @ColumnInfo(name = "username")
     var username: String
 
-) {
+) : Parcelable {
 
     override fun toString(): String {
         return "BlogPost(pk=$pk, " +

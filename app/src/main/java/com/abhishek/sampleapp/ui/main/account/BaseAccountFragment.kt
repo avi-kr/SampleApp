@@ -13,8 +13,9 @@ import androidx.navigation.ui.NavigationUI
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.di.Injectable
 import com.abhishek.sampleapp.ui.DataStateChangeListener
-import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
-import javax.inject.Inject
+import com.abhishek.sampleapp.ui.main.MainDependencyProvider
+import com.abhishek.sampleapp.ui.main.account.state.ACCOUNT_VIEW_STATE_BUNDLE_KEY
+import com.abhishek.sampleapp.ui.main.account.state.AccountViewState
 
 /**
  * Created by Abhishek Kumar on 03/08/20.
@@ -25,7 +26,7 @@ abstract class BaseAccountFragment : Fragment(), Injectable {
 
     val TAG: String = "AppDebug"
 
-    @Inject lateinit var providerFactory: ViewModelProviderFactory
+    lateinit var dependencyProvider: MainDependencyProvider
 
     lateinit var viewModel: AccountViewModel
 
@@ -34,12 +35,41 @@ abstract class BaseAccountFragment : Fragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.accountFragment, activity as AppCompatActivity)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         viewModel = activity?.run {
-            ViewModelProvider(this, providerFactory).get(AccountViewModel::class.java)
+            ViewModelProvider(
+                this, dependencyProvider.getVMProviderFactory()
+            ).get(AccountViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
 
         cancelActiveJobs()
+
+        // Restore state after process death
+        savedInstanceState?.let { inState ->
+            (inState[ACCOUNT_VIEW_STATE_BUNDLE_KEY] as AccountViewState?)?.let { viewState ->
+                viewModel.setViewState(viewState)
+            }
+        }
+    }
+
+    fun isViewModelInitialized() = ::viewModel.isInitialized
+
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isViewModelInitialized()) {
+            outState.putParcelable(
+                ACCOUNT_VIEW_STATE_BUNDLE_KEY,
+                viewModel.viewState.value
+            )
+        }
+        super.onSaveInstanceState(outState)
     }
 
     fun cancelActiveJobs() {
@@ -64,6 +94,11 @@ abstract class BaseAccountFragment : Fragment(), Injectable {
             stateChangeListener = context as DataStateChangeListener
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement DataStateChangeListener")
+        }
+        try {
+            dependencyProvider = context as MainDependencyProvider
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement MainDependencyProvider")
         }
     }
 }

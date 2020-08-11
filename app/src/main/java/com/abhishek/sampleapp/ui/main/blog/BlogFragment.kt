@@ -108,7 +108,7 @@ class BlogFragment : BaseBlogFragment(),
             if (viewState != null) {
                 recyclerAdapter.apply {
                     preloadGlideImages(
-                        requestManager = requestManager,
+                        requestManager = dependencyProvider.getGlideRequestManager(),
                         list = viewState.blogFields.blogList
                     )
                     submitList(
@@ -195,7 +195,10 @@ class BlogFragment : BaseBlogFragment(),
             removeItemDecoration(topSpacingDecorator) // does nothing if not applied already
             addItemDecoration(topSpacingDecorator)
 
-            recyclerAdapter = BlogListAdapter(requestManager, this@BlogFragment)
+            recyclerAdapter = BlogListAdapter(
+                dependencyProvider.getGlideRequestManager(),
+                this@BlogFragment
+            )
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
 
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

@@ -14,10 +14,10 @@ import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.di.Injectable
 import com.abhishek.sampleapp.ui.DataStateChangeListener
 import com.abhishek.sampleapp.ui.UICommunicationListener
+import com.abhishek.sampleapp.ui.main.MainDependencyProvider
+import com.abhishek.sampleapp.ui.main.blog.state.BLOG_VIEW_STATE_BUNDLE_KEY
+import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.BlogViewModel
-import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
-import com.bumptech.glide.RequestManager
-import javax.inject.Inject
 
 /**
  * Created by Abhishek Kumar on 03/08/20.
@@ -28,11 +28,7 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
 
     val TAG: String = "AppDebug"
 
-    @Inject
-    lateinit var requestManager: RequestManager
-
-    @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
+    lateinit var dependencyProvider: MainDependencyProvider
 
     lateinit var stateChangeListener: DataStateChangeListener
 
@@ -43,12 +39,42 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupActionBarWithNavController(R.id.blogFragment, activity as AppCompatActivity)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
         viewModel = activity?.run {
-            ViewModelProvider(this, providerFactory).get(BlogViewModel::class.java)
+            ViewModelProvider(
+                this,
+                dependencyProvider.getVMProviderFactory()
+            ).get(BlogViewModel::class.java)
         } ?: throw Exception("Invalid Activity")
 
         cancelActiveJobs()
+
+        // Restore state after process death
+        savedInstanceState?.let { inState ->
+            (inState[BLOG_VIEW_STATE_BUNDLE_KEY] as BlogViewState?)?.let { viewState ->
+                viewModel.setViewState(viewState)
+            }
+        }
+    }
+
+    fun isViewModelInitialized() = ::viewModel.isInitialized
+
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        if (isViewModelInitialized()) {
+            outState.putParcelable(
+                BLOG_VIEW_STATE_BUNDLE_KEY,
+                viewModel.viewState.value
+            )
+        }
+        super.onSaveInstanceState(outState)
     }
 
     fun cancelActiveJobs() {
@@ -78,6 +104,11 @@ abstract class BaseBlogFragment : Fragment(), Injectable {
             uiCommunicationListener = context as UICommunicationListener
         } catch (e: ClassCastException) {
             Log.e(TAG, "$context must implement UICommunicationListener")
+        }
+        try {
+            dependencyProvider = context as MainDependencyProvider
+        } catch (e: ClassCastException) {
+            Log.e(TAG, "$context must implement MainDependencyProvider")
         }
     }
 }

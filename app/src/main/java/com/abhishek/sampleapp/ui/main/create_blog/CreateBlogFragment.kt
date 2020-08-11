@@ -86,13 +86,15 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 
     fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            stateChangeListener.onDataStateChange(dataState)
-            dataState.data?.let { data ->
-                data.response?.let { event ->
-                    event.peekContent().let { response ->
-                        response.message?.let { message ->
-                            if (message.equals(SUCCESS_BLOG_CREATED)) {
-                                viewModel.clearNewBlogFields()
+            if (dataState != null) {
+                stateChangeListener.onDataStateChange(dataState)
+                dataState.data?.let { data ->
+                    data.response?.let { event ->
+                        event.peekContent().let { response ->
+                            response.message?.let { message ->
+                                if (message.equals(SUCCESS_BLOG_CREATED)) {
+                                    viewModel.clearNewBlogFields()
+                                }
                             }
                         }
                     }
@@ -113,7 +115,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 
     fun setBlogProperties(title: String?, body: String?, image: Uri?) {
         image?.let {
-            requestManager
+            dependencyProvider.getGlideRequestManager()
                 .load(image)
                 .into(blog_image)
         } ?: setDefaultImage()
@@ -123,7 +125,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
     }
 
     private fun setDefaultImage() {
-        requestManager
+        dependencyProvider.getGlideRequestManager()
             .load(R.drawable.default_image)
             .into(blog_image)
     }

@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import com.abhishek.sampleapp.R
+import com.abhishek.sampleapp.models.AUTH_TOKEN_BUNDLE_KEY
+import com.abhishek.sampleapp.models.AuthToken
 import com.abhishek.sampleapp.ui.BaseActivity
 import com.abhishek.sampleapp.ui.auth.AuthActivity
 import com.abhishek.sampleapp.ui.main.account.BaseAccountFragment
@@ -20,10 +22,13 @@ import com.abhishek.sampleapp.ui.main.blog.ViewBlogFragment
 import com.abhishek.sampleapp.ui.main.create_blog.BaseCreateBlogFragment
 import com.abhishek.sampleapp.util.BottomNavController
 import com.abhishek.sampleapp.util.setUpNavigation
+import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
+import com.bumptech.glide.RequestManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.progress_bar
 import kotlinx.android.synthetic.main.activity_main.tool_bar
+import javax.inject.Inject
 
 /**
  * Created by Abhishek Kumar on 29/07/20.
@@ -33,7 +38,18 @@ import kotlinx.android.synthetic.main.activity_main.tool_bar
 class MainActivity : BaseActivity(),
     BottomNavController.NavGraphProvider,
     BottomNavController.OnNavigationGraphChanged,
-    BottomNavController.OnNavigationReselectedListener {
+    BottomNavController.OnNavigationReselectedListener,
+    MainDependencyProvider {
+
+    @Inject
+    lateinit var providerFactory: ViewModelProviderFactory
+
+    @Inject
+    lateinit var requestManager: RequestManager
+
+    override fun getGlideRequestManager() = requestManager
+
+    override fun getVMProviderFactory() = providerFactory
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -136,6 +152,18 @@ class MainActivity : BaseActivity(),
         }
 
         subscribeObservers()
+        restoreSession(savedInstanceState)
+    }
+
+    private fun restoreSession(savedInstanceState: Bundle?) {
+        savedInstanceState?.get(AUTH_TOKEN_BUNDLE_KEY)?.let { authToken ->
+            sessionManager.setValue(authToken as AuthToken)
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
+        super.onSaveInstanceState(outState)
     }
 
     fun subscribeObservers() {
