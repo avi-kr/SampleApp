@@ -7,10 +7,15 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import com.abhishek.sampleapp.R
+import com.abhishek.sampleapp.R.string
+import com.abhishek.sampleapp.ui.AreYouSureCallback
 import com.abhishek.sampleapp.ui.Data
 import com.abhishek.sampleapp.ui.DataState
 import com.abhishek.sampleapp.ui.Event
@@ -18,14 +23,23 @@ import com.abhishek.sampleapp.ui.Loading
 import com.abhishek.sampleapp.ui.Response
 import com.abhishek.sampleapp.ui.ResponseType
 import com.abhishek.sampleapp.ui.StateError
+import com.abhishek.sampleapp.ui.UIMessage
+import com.abhishek.sampleapp.ui.UIMessageType.AreYouSureDialog
+import com.abhishek.sampleapp.ui.main.create_blog.state.CreateBlogStateEvent
 import com.abhishek.sampleapp.util.Constants.Companion.GALLERY_REQUEST_CODE
+import com.abhishek.sampleapp.util.ErrorHandling.Companion.ERROR_MUST_SELECT_IMAGE
 import com.abhishek.sampleapp.util.ErrorHandling.Companion.ERROR_SOMETHING_WRONG_WITH_IMAGE
+import com.abhishek.sampleapp.util.SuccessHandling.Companion.SUCCESS_BLOG_CREATED
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.fragment_create_blog.blog_body
 import kotlinx.android.synthetic.main.fragment_create_blog.blog_image
 import kotlinx.android.synthetic.main.fragment_create_blog.blog_title
 import kotlinx.android.synthetic.main.fragment_create_blog.update_textview
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 /**
  * Created by Abhishek Kumar on 03/08/20.
@@ -44,6 +58,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setHasOptionsMenu(true)
 
         blog_image.setOnClickListener {
             if (stateChangeListener.isStoragePermissionGranted()) {
@@ -69,13 +84,24 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
         startActivityForResult(intent, GALLERY_REQUEST_CODE)
     }
 
-    fun subscribeObservers(){
+    fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
             stateChangeListener.onDataStateChange(dataState)
+            dataState.data?.let { data ->
+                data.response?.let { event ->
+                    event.peekContent().let { response ->
+                        response.message?.let { message ->
+                            if (message.equals(SUCCESS_BLOG_CREATED)) {
+                                viewModel.clearNewBlogFields()
+                            }
+                        }
+                    }
+                }
+            }
         })
 
         viewModel.viewState.observe(viewLifecycleOwner, Observer { viewState ->
-            viewState.blogFields.let{ newBlogFields ->
+            viewState.blogFields.let { newBlogFields ->
                 setBlogProperties(
                     newBlogFields.newBlogTitle,
                     newBlogFields.newBlogBody,
@@ -144,6 +170,40 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
         }
     }
 
+    private fun publishNewBlog() {
+        var multipartBody: MultipartBody.Part? = null
+        viewModel.getNewImageUri()?.let { imageUri ->
+            imageUri.path?.let { filePath ->
+                val imageFile = File(filePath)
+                Log.d(TAG, "CreateBlogFragment, imageFile: file: ${imageFile}")
+                val requestBody =
+                    RequestBody.create(
+                        MediaType.parse("image/*"),
+                        imageFile
+                    )
+                // name = field name in serializer
+                // filename = name of the image file
+                // requestBody = file with file type information
+                multipartBody = MultipartBody.Part.createFormData(
+                    "image",
+                    imageFile.name,
+                    requestBody
+                )
+            }
+        }
+
+        multipartBody?.let {
+            viewModel.setStateEvent(
+                CreateBlogStateEvent.CreateNewBlogEvent(
+                    blog_title.text.toString(),
+                    blog_body.text.toString(),
+                    it
+                )
+            )
+            stateChangeListener.hideSoftKeyboard()
+        } ?: showErrorDialog(ERROR_MUST_SELECT_IMAGE)
+    }
+
     fun showErrorDialog(errorMessage: String) {
         stateChangeListener.onDataStateChange(
             DataState(
@@ -161,5 +221,34 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
             blog_body.text.toString(),
             null
         )
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.publish_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.publish -> {
+                val callback: AreYouSureCallback = object : AreYouSureCallback {
+
+                    override fun proceed() {
+                        publishNewBlog()
+                    }
+
+                    override fun cancel() {
+                        // ignore
+                    }
+                }
+                uiCommunicationListener.onUIMessageReceived(
+                    UIMessage(
+                        getString(string.are_you_sure_publish),
+                        AreYouSureDialog(callback)
+                    )
+                )
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
