@@ -20,7 +20,9 @@ import com.abhishek.sampleapp.ui.main.blog.BaseBlogFragment
 import com.abhishek.sampleapp.ui.main.blog.UpdateBlogFragment
 import com.abhishek.sampleapp.ui.main.blog.ViewBlogFragment
 import com.abhishek.sampleapp.ui.main.create_blog.BaseCreateBlogFragment
+import com.abhishek.sampleapp.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.abhishek.sampleapp.util.BottomNavController
+import com.abhishek.sampleapp.util.BottomNavController.BackStack
 import com.abhishek.sampleapp.util.setUpNavigation
 import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
 import com.bumptech.glide.RequestManager
@@ -143,16 +145,25 @@ class MainActivity : BaseActivity(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         setupActionBar()
+        SetupBottomNavigationView(savedInstanceState)
+        subscribeObservers()
+        restoreSession(savedInstanceState)
+    }
+
+    private fun SetupBottomNavigationView(savedInstanceState: Bundle?) {
         bottomNavigationView = findViewById(R.id.bottom_navigation_view)
         bottomNavigationView.setUpNavigation(bottomNavController, this)
         if (savedInstanceState == null) {
+            bottomNavController.setupBottomNavigationBackStack(null)
             bottomNavController.onNavigationItemSelected()
+        } else {
+            (savedInstanceState[BOTTOM_NAV_BACKSTACK_KEY] as IntArray?)?.let { items ->
+                val backStack = BackStack()
+                backStack.addAll(items.toTypedArray())
+                bottomNavController.setupBottomNavigationBackStack(backStack)
+            }
         }
-
-        subscribeObservers()
-        restoreSession(savedInstanceState)
     }
 
     private fun restoreSession(savedInstanceState: Bundle?) {
@@ -163,6 +174,7 @@ class MainActivity : BaseActivity(),
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putParcelable(AUTH_TOKEN_BUNDLE_KEY, sessionManager.cachedToken.value)
+        outState.putIntArray(BOTTOM_NAV_BACKSTACK_KEY, bottomNavController.navigationBackStack.toIntArray())
         super.onSaveInstanceState(outState)
     }
 

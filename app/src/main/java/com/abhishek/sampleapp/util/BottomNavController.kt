@@ -2,6 +2,7 @@ package com.abhishek.sampleapp.util
 
 import android.app.Activity
 import android.content.Context
+import android.os.Parcelable
 import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
 import androidx.fragment.app.Fragment
@@ -13,11 +14,15 @@ import androidx.navigation.fragment.NavHostFragment
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.util.BottomNavController.OnNavigationReselectedListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Created by Abhishek Kumar on 04/08/20.
  * (c)2020 VMock. All rights reserved.
  */
+
+const val BOTTOM_NAV_BACKSTACK_KEY = "com.abhishek.sampleapp.util.BottomNavController.BackStack"
+
 class BottomNavController(
     val context: Context,
     @IdRes val containerId: Int,
@@ -27,7 +32,7 @@ class BottomNavController(
 ) {
 
     private val TAG: String = "AppDebug"
-    private val navigationBackStack = BackStack.of(appStartDestinationId)
+    lateinit var navigationBackStack: BackStack
     lateinit var activity: Activity
     lateinit var fragmentManager: FragmentManager
     lateinit var navItemChangeListener: OnNavigationItemChanged
@@ -37,6 +42,12 @@ class BottomNavController(
             activity = context
             fragmentManager = (activity as FragmentActivity).supportFragmentManager
         }
+    }
+
+    fun setupBottomNavigationBackStack(previousBackStack: BackStack?) {
+        navigationBackStack = previousBackStack?.let {
+            it
+        } ?: BackStack.of(appStartDestinationId)
     }
 
     fun onNavigationItemSelected(itemId: Int = navigationBackStack.last()): Boolean {
@@ -99,7 +110,9 @@ class BottomNavController(
         }
     }
 
-    private class BackStack : ArrayList<Int>() {
+    @Parcelize
+    class BackStack : ArrayList<Int>(), Parcelable {
+
         companion object {
             fun of(vararg elements: Int): BackStack {
                 val b = BackStack()
