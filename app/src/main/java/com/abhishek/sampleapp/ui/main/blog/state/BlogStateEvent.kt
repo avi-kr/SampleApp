@@ -11,6 +11,8 @@ sealed class BlogStateEvent {
 
     class BlogSearchEvent : BlogStateEvent()
 
+    class RestoreBlogListFromCache : BlogStateEvent()
+
     class CheckAuthorOfBlogPost : BlogStateEvent()
 
     class DeleteBlogPostEvent : BlogStateEvent()
@@ -19,7 +21,7 @@ sealed class BlogStateEvent {
         val title: String,
         val body: String,
         val image: MultipartBody.Part?
-    ): BlogStateEvent()
+    ) : BlogStateEvent()
 
     class None : BlogStateEvent()
 }

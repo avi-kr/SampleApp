@@ -137,8 +137,8 @@ class BlogListAdapter(
     fun preloadGlideImages(
         requestManager: RequestManager,
         list: List<BlogPost>
-    ){
-        for(blogPost in list){
+    ) {
+        for (blogPost in list) {
             requestManager
                 .load(blogPost.image)
                 .preload()
@@ -149,7 +149,10 @@ class BlogListAdapter(
         val newList = blogList?.toMutableList()
         if (isQueryExhausted)
             newList?.add(NO_MORE_RESULTS_BLOG_MARKER)
-        differ.submitList(newList)
+        val commitCallback = Runnable {
+            interaction?.restoreListPosition()
+        }
+        differ.submitList(newList, commitCallback)
     }
 
     class BlogViewHolder
@@ -176,5 +179,7 @@ class BlogListAdapter(
 
     interface Interaction {
         fun onItemSelected(position: Int, item: BlogPost)
+
+        fun restoreListPosition()
     }
 }

@@ -12,7 +12,6 @@ import kotlinx.android.parcel.Parcelize
  * (c)2020 VMock. All rights reserved.
  */
 
-
 const val BLOG_VIEW_STATE_BUNDLE_KEY = "com.abhishek.sampleapp.ui.main.blog.state.BlogViewState"
 
 @Parcelize
@@ -36,7 +35,8 @@ data class BlogViewState(
         var isQueryInProgress: Boolean = false,
         var isQueryExhausted: Boolean = false,
         var filter: String = ORDER_BY_ASC_DATE_UPDATED, // date_update
-        var order: String = BLOG_ORDER_ASC // ""
+        var order: String = BLOG_ORDER_ASC, // ""
+        var layoutManagerState: Parcelable? = null
     ) : Parcelable
 
     @Parcelize

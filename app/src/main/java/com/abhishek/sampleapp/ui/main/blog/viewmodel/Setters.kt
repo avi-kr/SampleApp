@@ -1,6 +1,7 @@
 package com.abhishek.sampleapp.ui.main.blog.viewmodel
 
 import android.net.Uri
+import android.os.Parcelable
 import com.abhishek.sampleapp.models.BlogPost
 
 /**
@@ -61,6 +62,18 @@ fun BlogViewModel.setBlogOrder(order: String) {
     setViewState(update)
 }
 
+fun BlogViewModel.setLayoutManagerState(layoutManagerState: Parcelable) {
+    val update = getCurrentViewStateOrNew()
+    update.blogFields.layoutManagerState = layoutManagerState
+    setViewState(update)
+}
+
+fun BlogViewModel.clearLayoutManagerState() {
+    val update = getCurrentViewStateOrNew()
+    update.blogFields.layoutManagerState = null
+    setViewState(update)
+}
+
 fun BlogViewModel.removeDeletedBlogPost() {
     val update = getCurrentViewStateOrNew()
     val list = update.blogFields.blogList.toMutableList()
@@ -83,11 +96,11 @@ fun BlogViewModel.setUpdatedBlogFields(title: String?, body: String?, uri: Uri?)
     setViewState(update)
 }
 
-fun BlogViewModel.updateListItem(newBlogPost: BlogPost){
+fun BlogViewModel.updateListItem(newBlogPost: BlogPost) {
     val update = getCurrentViewStateOrNew()
     val list = update.blogFields.blogList.toMutableList()
-    for(i in 0..(list.size - 1)){
-        if(list[i].pk == newBlogPost.pk){
+    for (i in 0..(list.size - 1)) {
+        if (list[i].pk == newBlogPost.pk) {
             list[i] = newBlogPost
             break
         }
@@ -96,7 +109,7 @@ fun BlogViewModel.updateListItem(newBlogPost: BlogPost){
     setViewState(update)
 }
 
-fun BlogViewModel.onBlogPostUpdateSuccess(blogPost: BlogPost){
+fun BlogViewModel.onBlogPostUpdateSuccess(blogPost: BlogPost) {
     setUpdatedBlogFields(
         uri = null,
         title = blogPost.title,

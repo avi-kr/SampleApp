@@ -2,6 +2,7 @@ package com.abhishek.sampleapp.ui.main.blog.viewmodel
 
 import android.util.Log
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.RestoreBlogListFromCache
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 
 /**
@@ -13,6 +14,12 @@ fun BlogViewModel.resetPage() {
     val update = getCurrentViewStateOrNew()
     update.blogFields.page = 1
     setViewState(update)
+}
+
+fun BlogViewModel.refreshFromCache() {
+    setQueryInProgress(true)
+    setQueryExhausted(false)
+    setStateEvent(RestoreBlogListFromCache())
 }
 
 fun BlogViewModel.loadFirstPage() {

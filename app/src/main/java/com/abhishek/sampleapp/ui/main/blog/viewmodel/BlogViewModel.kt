@@ -13,6 +13,7 @@ import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.BlogSearchEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.CheckAuthorOfBlogPost
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.DeleteBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.None
+import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.RestoreBlogListFromCache
 import com.abhishek.sampleapp.ui.main.blog.state.BlogStateEvent.UpdateBlogPostEvent
 import com.abhishek.sampleapp.ui.main.blog.state.BlogViewState
 import com.abhishek.sampleapp.util.AbsentLiveData
@@ -57,6 +58,7 @@ constructor(
         when (stateEvent) {
 
             is BlogSearchEvent -> {
+                clearLayoutManagerState()
                 return sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.searchBlogPosts(
                         authToken = authToken,
@@ -67,13 +69,21 @@ constructor(
                 } ?: AbsentLiveData.create()
             }
 
+            is RestoreBlogListFromCache -> {
+                return blogRepository.restoreBlogListFromCache(
+                    query = getSearchQuery(),
+                    filterAndOrder = getOrder() + getFilter(),
+                    page = getPage()
+                )
+            }
+
             is CheckAuthorOfBlogPost -> {
                 return sessionManager.cachedToken.value?.let { authToken ->
                     blogRepository.isAuthorOfBlogPost(
                         authToken = authToken,
                         slug = getSlug()
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
             }
 
             is DeleteBlogPostEvent -> {
@@ -82,7 +92,7 @@ constructor(
                         authToken = authToken,
                         blogPost = getBlogPost()
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
             }
 
             is UpdateBlogPostEvent -> {
@@ -105,7 +115,7 @@ constructor(
                         body = body,
                         image = stateEvent.image
                     )
-                }?: AbsentLiveData.create()
+                } ?: AbsentLiveData.create()
             }
 
             is None -> {

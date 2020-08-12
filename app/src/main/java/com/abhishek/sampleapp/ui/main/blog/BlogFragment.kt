@@ -34,9 +34,11 @@ import com.abhishek.sampleapp.ui.main.blog.viewmodel.getOrder
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.handleIncomingBlogListData
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.loadFirstPage
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.nextPage
+import com.abhishek.sampleapp.ui.main.blog.viewmodel.refreshFromCache
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setBlogFilter
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setBlogOrder
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setBlogPost
+import com.abhishek.sampleapp.ui.main.blog.viewmodel.setLayoutManagerState
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setQuery
 import com.abhishek.sampleapp.ui.main.blog.viewmodel.setQueryExhausted
 import com.abhishek.sampleapp.util.ErrorHandling
@@ -76,9 +78,21 @@ class BlogFragment : BaseBlogFragment(),
 
         initRecyclerView()
         subscribeObservers()
+    }
 
-        if (savedInstanceState == null) {
-            viewModel.loadFirstPage()
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshFromCache()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        saveLayoutManagerState()
+    }
+
+    private fun saveLayoutManagerState() {
+        blog_post_recyclerview.layoutManager?.onSaveInstanceState()?.let { lmState ->
+            viewModel.setLayoutManagerState(lmState)
         }
     }
 
@@ -111,6 +125,7 @@ class BlogFragment : BaseBlogFragment(),
                         requestManager = dependencyProvider.getGlideRequestManager(),
                         list = viewState.blogFields.blogList
                     )
+                    Log.d(TAG, "#List items: ${viewState.blogFields.blogList.size}")
                     submitList(
                         blogList = viewState.blogFields.blogList,
                         isQueryExhausted = viewState.blogFields.isQueryExhausted
@@ -228,6 +243,12 @@ class BlogFragment : BaseBlogFragment(),
     override fun onItemSelected(position: Int, item: BlogPost) {
         viewModel.setBlogPost(item)
         findNavController().navigate(R.id.action_blogFragment_to_viewBlogFragment)
+    }
+
+    override fun restoreListPosition() {
+        viewModel.viewState.value?.blogFields?.layoutManagerState?.let { lmState ->
+            blog_post_recyclerview?.layoutManager?.onRestoreInstanceState(lmState)
+        }
     }
 
     override fun onDestroyView() {
