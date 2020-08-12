@@ -1,8 +1,10 @@
 package com.abhishek.sampleapp.util
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Parcelable
+import android.util.Log
 import androidx.annotation.IdRes
 import androidx.annotation.NavigationRes
 import androidx.fragment.app.Fragment
@@ -11,6 +13,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.util.BottomNavController.OnNavigationReselectedListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -78,20 +81,20 @@ class BottomNavController(
         return true
     }
 
+    @SuppressLint("RestrictedApi")
     fun onBackPressed() {
-        val childFragmentManager = fragmentManager.findFragmentById(containerId)!!
-            .childFragmentManager
-        when {
-            // We should always try to go back on the child fragment manager stack before going to
-            // the navigation stack. It's important to use the child fragment manager instead of the
-            // NavController because if the user change tabs super fast commit of the
-            // supportFragmentManager may mess up with the NavController child fragment manager back
-            // stack
+        val navController = fragmentManager.findFragmentById(containerId)!!
+            .findNavController()
 
-            childFragmentManager.popBackStackImmediate() -> {
+        when {
+            navController.backStack.size > 2 ->{
+                navController.popBackStack()
             }
+
             // Fragment back stack is empty so try to go back on the navigation stack
             navigationBackStack.size > 1 -> {
+                Log.d(TAG, "logInfo: BNC: backstack size > 1")
+
                 // Remove last item from back stack
                 navigationBackStack.removeLast()
 
@@ -101,12 +104,16 @@ class BottomNavController(
             // If the stack has only one and it's not the navigation home we should
             // ensure that the application always leave from startDestination
             navigationBackStack.last() != appStartDestinationId -> {
+                Log.d(TAG, "logInfo: BNC: start != current")
                 navigationBackStack.removeLast()
                 navigationBackStack.add(0, appStartDestinationId)
                 onNavigationItemSelected()
             }
             // Navigation stack is empty, so finish the activity
-            else -> activity.finish()
+            else -> {
+                Log.d(TAG, "logInfo: BNC: FINISH")
+                activity.finish()
+            }
         }
     }
 
