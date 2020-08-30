@@ -6,15 +6,16 @@ import android.content.Context
 import android.os.Parcelable
 import android.util.Log
 import androidx.annotation.IdRes
-import androidx.annotation.NavigationRes
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import com.abhishek.sampleapp.R
+import com.abhishek.sampleapp.fragments.main.account.AccountNavHostFragment
+import com.abhishek.sampleapp.fragments.main.blog.BlogNavHostFragment
+import com.abhishek.sampleapp.fragments.main.create_blog.CreateBlogNavHostFragment
 import com.abhishek.sampleapp.util.BottomNavController.OnNavigationReselectedListener
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.parcel.Parcelize
@@ -30,8 +31,7 @@ class BottomNavController(
     val context: Context,
     @IdRes val containerId: Int,
     @IdRes val appStartDestinationId: Int,
-    val graphChangeListener: OnNavigationGraphChanged?,
-    val navGraphProvider: NavGraphProvider
+    val graphChangeListener: OnNavigationGraphChanged?
 ) {
 
     private val TAG: String = "AppDebug"
@@ -53,11 +53,11 @@ class BottomNavController(
         } ?: BackStack.of(appStartDestinationId)
     }
 
-    fun onNavigationItemSelected(itemId: Int = navigationBackStack.last()): Boolean {
+    fun onNavigationItemSelected(menuItemId: Int = navigationBackStack.last()): Boolean {
 
         // Replace fragment representing a navigation item
-        val fragment = fragmentManager.findFragmentByTag(itemId.toString())
-            ?: NavHostFragment.create(navGraphProvider.getNavGraphId(itemId))
+        val fragment = fragmentManager.findFragmentByTag(menuItemId.toString())
+            ?: createNavHost(menuItemId)
         fragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.fade_in,
@@ -65,20 +65,41 @@ class BottomNavController(
                 R.anim.fade_in,
                 R.anim.fade_out
             )
-            .replace(containerId, fragment, itemId.toString())
+            .replace(containerId, fragment, menuItemId.toString())
             .addToBackStack(null)
             .commit()
 
         // Add to back stack
-        navigationBackStack.moveLast(itemId)
+        navigationBackStack.moveLast(menuItemId)
 
         // Update checked icon
-        navItemChangeListener.onItemChanged(itemId)
+        navItemChangeListener.onItemChanged(menuItemId)
 
         // communicate with Activity
         graphChangeListener?.onGraphChange()
 
         return true
+    }
+
+    private fun createNavHost(menuItemId: Int): Fragment {
+        return when (menuItemId) {
+
+            R.id.menu_nav_account -> {
+                AccountNavHostFragment.create(R.navigation.nav_account)
+            }
+
+            R.id.menu_nav_blog -> {
+                BlogNavHostFragment.create(R.navigation.nav_blog)
+            }
+
+            R.id.menu_nav_create_blog -> {
+                CreateBlogNavHostFragment.create(R.navigation.nav_create_blog)
+            }
+
+            else -> {
+                BlogNavHostFragment.create(R.navigation.nav_blog)
+            }
+        }
     }
 
     @SuppressLint("RestrictedApi")
@@ -87,7 +108,7 @@ class BottomNavController(
             .findNavController()
 
         when {
-            navController.backStack.size > 2 ->{
+            navController.backStack.size > 2 -> {
                 navController.popBackStack()
             }
 
@@ -121,6 +142,7 @@ class BottomNavController(
     class BackStack : ArrayList<Int>(), Parcelable {
 
         companion object {
+
             fun of(vararg elements: Int): BackStack {
                 val b = BackStack()
                 b.addAll(elements.toTypedArray())
@@ -140,15 +162,6 @@ class BottomNavController(
     interface OnNavigationItemChanged {
 
         fun onItemChanged(itemId: Int)
-    }
-
-    // Get id of each graph
-    // ex: R.navigation.nav_blog
-    // ex: R.navigation.nav_create_blog
-    interface NavGraphProvider {
-
-        @NavigationRes
-        fun getNavGraphId(itemId: Int): Int
     }
 
     // Execute when Navigation Graph changes.

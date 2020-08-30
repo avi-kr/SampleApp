@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.switchMap
 import com.abhishek.sampleapp.api.GenericResponse
 import com.abhishek.sampleapp.api.main.OpenApiMainService
+import com.abhishek.sampleapp.di.main.MainScope
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.models.AuthToken
 import com.abhishek.sampleapp.persistence.AccountPropertiesDao
@@ -28,6 +29,7 @@ import javax.inject.Inject
  * (c)2020 VMock. All rights reserved.
  */
 
+@MainScope
 class AccountRepository
 @Inject
 constructor(

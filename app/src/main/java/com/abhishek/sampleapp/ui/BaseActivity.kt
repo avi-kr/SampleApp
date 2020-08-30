@@ -3,8 +3,10 @@ package com.abhishek.sampleapp.ui
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.abhishek.sampleapp.session.SessionManager
@@ -12,7 +14,6 @@ import com.abhishek.sampleapp.ui.ResponseType.Dialog
 import com.abhishek.sampleapp.ui.ResponseType.None
 import com.abhishek.sampleapp.ui.ResponseType.Toast
 import com.abhishek.sampleapp.util.Constants.Companion.PERMISSIONS_REQUEST_READ_STORAGE
-import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -23,12 +24,19 @@ import javax.inject.Inject
  * (c)2020 VMock. All rights reserved.
  */
 
-abstract class BaseActivity : DaggerAppCompatActivity(), DataStateChangeListener, UICommunicationListener {
+abstract class BaseActivity : AppCompatActivity(), DataStateChangeListener, UICommunicationListener {
 
     val TAG: String = "AppDebug"
 
     @Inject
     lateinit var sessionManager: SessionManager
+
+    abstract fun inject()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        inject()
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onUIMessageReceived(uiMessage: UIMessage) {
         when (uiMessage.uiMessageType) {

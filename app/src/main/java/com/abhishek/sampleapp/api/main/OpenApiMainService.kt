@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.abhishek.sampleapp.api.GenericResponse
 import com.abhishek.sampleapp.api.main.responses.BlogCreateUpdateResponse
 import com.abhishek.sampleapp.api.main.responses.BlogListSearchResponse
+import com.abhishek.sampleapp.di.main.MainScope
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.util.GenericApiResponse
 import okhttp3.MultipartBody
@@ -25,6 +26,7 @@ import retrofit2.http.Query
  * (c)2020 VMock. All rights reserved.
  */
 
+@MainScope
 interface OpenApiMainService {
 
     @GET("account/properties")
@@ -87,5 +89,4 @@ interface OpenApiMainService {
         @Part("body") body: RequestBody,
         @Part image: MultipartBody.Part?
     ): LiveData<GenericApiResponse<BlogCreateUpdateResponse>>
-
 }

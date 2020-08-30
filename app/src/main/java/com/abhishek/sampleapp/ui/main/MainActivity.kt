@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
 import androidx.lifecycle.Observer
 import androidx.navigation.NavController
+import com.abhishek.sampleapp.BaseApplication
 import com.abhishek.sampleapp.R
 import com.abhishek.sampleapp.models.AUTH_TOKEN_BUNDLE_KEY
 import com.abhishek.sampleapp.models.AuthToken
@@ -23,14 +25,15 @@ import com.abhishek.sampleapp.ui.main.create_blog.BaseCreateBlogFragment
 import com.abhishek.sampleapp.util.BOTTOM_NAV_BACKSTACK_KEY
 import com.abhishek.sampleapp.util.BottomNavController
 import com.abhishek.sampleapp.util.BottomNavController.BackStack
+import com.abhishek.sampleapp.util.BottomNavController.OnNavigationGraphChanged
+import com.abhishek.sampleapp.util.BottomNavController.OnNavigationReselectedListener
 import com.abhishek.sampleapp.util.setUpNavigation
-import com.abhishek.sampleapp.viewmodels.ViewModelProviderFactory
-import com.bumptech.glide.RequestManager
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.progress_bar
 import kotlinx.android.synthetic.main.activity_main.tool_bar
 import javax.inject.Inject
+import javax.inject.Named
 
 /**
  * Created by Abhishek Kumar on 29/07/20.
@@ -38,20 +41,20 @@ import javax.inject.Inject
  */
 
 class MainActivity : BaseActivity(),
-    BottomNavController.NavGraphProvider,
-    BottomNavController.OnNavigationGraphChanged,
-    BottomNavController.OnNavigationReselectedListener,
-    MainDependencyProvider {
+    OnNavigationGraphChanged,
+    OnNavigationReselectedListener {
 
     @Inject
-    lateinit var providerFactory: ViewModelProviderFactory
+    @Named("AccountFragmentFactory")
+    lateinit var accountFragmentFactory: FragmentFactory
 
     @Inject
-    lateinit var requestManager: RequestManager
+    @Named("BlogFragmentFactory")
+    lateinit var blogFragmentFactory: FragmentFactory
 
-    override fun getGlideRequestManager() = requestManager
-
-    override fun getVMProviderFactory() = providerFactory
+    @Inject
+    @Named("CreateBlogFragmentFactory")
+    lateinit var createBlogFragmentFactory: FragmentFactory
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -59,25 +62,9 @@ class MainActivity : BaseActivity(),
         BottomNavController(
             this,
             R.id.main_nav_host_fragment,
-            R.id.nav_blog,
-            this,
+            R.id.menu_nav_blog,
             this
         )
-    }
-
-    override fun getNavGraphId(itemId: Int) = when (itemId) {
-        R.id.nav_blog -> {
-            R.navigation.nav_blog
-        }
-        R.id.nav_create_blog -> {
-            R.navigation.nav_create_blog
-        }
-        R.id.nav_account -> {
-            R.navigation.nav_account
-        }
-        else -> {
-            R.navigation.nav_blog
-        }
     }
 
     override fun onGraphChange() {
@@ -142,6 +129,11 @@ class MainActivity : BaseActivity(),
         return super.onOptionsItemSelected(item)
     }
 
+    override fun inject() {
+        (application as BaseApplication).mainComponent()
+            .inject(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -200,6 +192,7 @@ class MainActivity : BaseActivity(),
         val intent = Intent(this, AuthActivity::class.java)
         startActivity(intent)
         finish()
+        (application as BaseApplication).releaseMainComponent()
     }
 
     override fun displayProgressBar(bool: Boolean) {

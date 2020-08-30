@@ -6,15 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.abhishek.sampleapp.R
-import com.abhishek.sampleapp.R.string
+import com.abhishek.sampleapp.di.main.MainScope
 import com.abhishek.sampleapp.ui.AreYouSureCallback
 import com.abhishek.sampleapp.ui.Data
 import com.abhishek.sampleapp.ui.DataState
@@ -24,12 +24,16 @@ import com.abhishek.sampleapp.ui.Response
 import com.abhishek.sampleapp.ui.ResponseType
 import com.abhishek.sampleapp.ui.StateError
 import com.abhishek.sampleapp.ui.UIMessage
-import com.abhishek.sampleapp.ui.UIMessageType.AreYouSureDialog
+import com.abhishek.sampleapp.ui.UIMessageType
+import com.abhishek.sampleapp.ui.main.blog.BaseBlogFragment
+import com.abhishek.sampleapp.ui.main.create_blog.state.CREATE_BLOG_VIEW_STATE_BUNDLE_KEY
 import com.abhishek.sampleapp.ui.main.create_blog.state.CreateBlogStateEvent
+import com.abhishek.sampleapp.ui.main.create_blog.state.CreateBlogViewState
 import com.abhishek.sampleapp.util.Constants.Companion.GALLERY_REQUEST_CODE
 import com.abhishek.sampleapp.util.ErrorHandling.Companion.ERROR_MUST_SELECT_IMAGE
 import com.abhishek.sampleapp.util.ErrorHandling.Companion.ERROR_SOMETHING_WRONG_WITH_IMAGE
 import com.abhishek.sampleapp.util.SuccessHandling.Companion.SUCCESS_BLOG_CREATED
+import com.bumptech.glide.RequestManager
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.fragment_create_blog.blog_body
@@ -40,20 +44,50 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+import javax.inject.Inject
 
 /**
  * Created by Abhishek Kumar on 03/08/20.
  * (c)2020 VMock. All rights reserved.
  */
 
-class CreateBlogFragment : BaseCreateBlogFragment() {
+@MainScope
+class CreateBlogFragment
+@Inject
+constructor(
+    private val viewModelFactory: ViewModelProvider.Factory,
+    private val requestManager: RequestManager
+) : BaseBlogFragment(R.layout.fragment_create_blog) {
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_create_blog, container, false)
+    val viewModel: CreateBlogViewModel by viewModels {
+        viewModelFactory
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        cancelActiveJobs()
+        // Restore state after process death
+        savedInstanceState?.let { inState ->
+            (inState[CREATE_BLOG_VIEW_STATE_BUNDLE_KEY] as CreateBlogViewState?)?.let { viewState ->
+                viewModel.setViewState(viewState)
+            }
+        }
+    }
+
+    /**
+     * !IMPORTANT!
+     * Must save ViewState b/c in event of process death the LiveData in ViewModel will be lost
+     */
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(
+            CREATE_BLOG_VIEW_STATE_BUNDLE_KEY,
+            viewModel.viewState.value
+        )
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun cancelActiveJobs() {
+        viewModel.cancelActiveJobs()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -86,15 +120,13 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 
     fun subscribeObservers() {
         viewModel.dataState.observe(viewLifecycleOwner, Observer { dataState ->
-            if (dataState != null) {
-                stateChangeListener.onDataStateChange(dataState)
-                dataState.data?.let { data ->
-                    data.response?.let { event ->
-                        event.peekContent().let { response ->
-                            response.message?.let { message ->
-                                if (message.equals(SUCCESS_BLOG_CREATED)) {
-                                    viewModel.clearNewBlogFields()
-                                }
+            stateChangeListener.onDataStateChange(dataState)
+            dataState.data?.let { data ->
+                data.response?.let { event ->
+                    event.peekContent().let { response ->
+                        response.message?.let { message ->
+                            if (message.equals(SUCCESS_BLOG_CREATED)) {
+                                viewModel.clearNewBlogFields()
                             }
                         }
                     }
@@ -114,20 +146,18 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
     }
 
     fun setBlogProperties(title: String?, body: String?, image: Uri?) {
-        image?.let {
-            dependencyProvider.getGlideRequestManager()
+        if (image != null) {
+            requestManager
                 .load(image)
                 .into(blog_image)
-        } ?: setDefaultImage()
+        } else {
+            requestManager
+                .load(R.drawable.default_image)
+                .into(blog_image)
+        }
 
         blog_title.setText(title)
         blog_body.setText(body)
-    }
-
-    private fun setDefaultImage() {
-        dependencyProvider.getGlideRequestManager()
-            .load(R.drawable.default_image)
-            .into(blog_image)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -174,7 +204,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
 
     private fun publishNewBlog() {
         var multipartBody: MultipartBody.Part? = null
-        viewModel.getNewImageUri()?.let { imageUri ->
+        viewModel.viewState.value?.blogFields?.newImageUri?.let { imageUri ->
             imageUri.path?.let { filePath ->
                 val imageFile = File(filePath)
                 Log.d(TAG, "CreateBlogFragment, imageFile: file: ${imageFile}")
@@ -195,6 +225,7 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
         }
 
         multipartBody?.let {
+
             viewModel.setStateEvent(
                 CreateBlogStateEvent.CreateNewBlogEvent(
                     blog_title.text.toString(),
@@ -244,8 +275,8 @@ class CreateBlogFragment : BaseCreateBlogFragment() {
                 }
                 uiCommunicationListener.onUIMessageReceived(
                     UIMessage(
-                        getString(string.are_you_sure_publish),
-                        AreYouSureDialog(callback)
+                        getString(R.string.are_you_sure_publish),
+                        UIMessageType.AreYouSureDialog(callback)
                     )
                 )
                 return true

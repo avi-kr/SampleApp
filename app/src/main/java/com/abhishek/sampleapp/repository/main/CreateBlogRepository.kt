@@ -3,6 +3,7 @@ package com.abhishek.sampleapp.repository.main
 import androidx.lifecycle.LiveData
 import com.abhishek.sampleapp.api.main.OpenApiMainService
 import com.abhishek.sampleapp.api.main.responses.BlogCreateUpdateResponse
+import com.abhishek.sampleapp.di.main.MainScope
 import com.abhishek.sampleapp.models.AuthToken
 import com.abhishek.sampleapp.models.BlogPost
 import com.abhishek.sampleapp.persistence.BlogPostDao
@@ -30,6 +31,7 @@ import javax.inject.Inject
  * (c)2020 VMock. All rights reserved.
  */
 
+@MainScope
 class CreateBlogRepository
 @Inject
 constructor(

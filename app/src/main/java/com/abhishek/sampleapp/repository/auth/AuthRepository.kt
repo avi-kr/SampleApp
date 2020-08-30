@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import com.abhishek.sampleapp.api.auth.OpenApiAuthService
 import com.abhishek.sampleapp.api.auth.network_responsne.LoginResponse
 import com.abhishek.sampleapp.api.auth.network_responsne.RegistrationResponse
+import com.abhishek.sampleapp.di.auth.AuthScope
 import com.abhishek.sampleapp.models.AccountProperties
 import com.abhishek.sampleapp.models.AuthToken
 import com.abhishek.sampleapp.persistence.AccountPropertiesDao
@@ -34,6 +35,7 @@ import kotlinx.coroutines.Job
  * (c)2020 VMock. All rights reserved.
  */
 
+@AuthScope
 class AuthRepository
 constructor(
     val authTokenDao: AuthTokenDao,

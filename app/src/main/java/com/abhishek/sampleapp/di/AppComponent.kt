@@ -1,12 +1,12 @@
 package com.abhishek.sampleapp.di
 
 import android.app.Application
-import com.abhishek.sampleapp.BaseApplication
+import com.abhishek.sampleapp.di.auth.AuthComponent
+import com.abhishek.sampleapp.di.main.MainComponent
 import com.abhishek.sampleapp.session.SessionManager
+import com.abhishek.sampleapp.ui.BaseActivity
 import dagger.BindsInstance
 import dagger.Component
-import dagger.android.AndroidInjectionModule
-import dagger.android.AndroidInjector
 import javax.inject.Singleton
 
 /**
@@ -17,15 +17,13 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        AndroidInjectionModule::class,
         AppModule::class,
-        ActivityBuildersModule::class,
-        ViewModelFactoryModule::class
+        SubComponentsModule::class
     ]
 )
-interface AppComponent : AndroidInjector<BaseApplication> {
+interface AppComponent {
 
-    val sessionManager: SessionManager // must add here b/c injecting into abstract class
+    val sessionManager: SessionManager
 
     @Component.Builder
     interface Builder {
@@ -35,4 +33,10 @@ interface AppComponent : AndroidInjector<BaseApplication> {
 
         fun build(): AppComponent
     }
+
+    fun inject(baseActivity: BaseActivity)
+
+    fun authComponent(): AuthComponent.Factory
+
+    fun mainComponent(): MainComponent.Factory
 }
